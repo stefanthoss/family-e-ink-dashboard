@@ -1,3 +1,6 @@
+# MagInkDashPlus
+
+**This is a fork of the original [MagInkDash](https://github.com/speedyg0nz/MagInkDash) -- replacing the Google Calendar integration with a generic ICS feed, removing the OpenAI integration, and using a live-rendering Docker image instead of a Raspberry Pi cronjob for the backend.**
 
 # MagInkDash
 This repo contains the code needed to drive an E-Ink Magic Dashboard that uses a Raspberry Pi to automatically retrieve updated content from Google Calendar, OpenWeatherMap and OpenAI ChatGPT, format them into the desired layout, before serving it to a battery powered E-Ink display (Inkplate 10). Note that the code has only been tested on the specific hardware mentioned, but can be easily modified to work with other hardware (for both the server or display).

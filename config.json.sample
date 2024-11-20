@@ -1,0 +1,13 @@
+{
+  "displayTZ": "America/Denver",
+  "ics_url": "ENTER_YOUR_ICS_CALENDAR_URL_HERE",
+  "numCalDaysToShow": 5,
+  "owm_api_key": "ENTER_YOUR_OWN_API_KEY_HERE",
+  "weather_units": "imperial",
+  "lat": 36.99898,
+  "lon": -109.04517,
+  "imageWidth": 1200,
+  "imageHeight": 825,
+  "rotateAngle": 0,
+  "path_to_server_image": "/var/www/html/maginkdash.png"
+}

@@ -8,16 +8,20 @@ import requests
 import json
 import string
 import datetime
+from enum import Enum
 
+class WeatherUnits(str, Enum):
+    metric = "metric"
+    imperial = "imperial"
 
 class OWMModule:
     def __init__(self):
         self.logger = logging.getLogger('maginkdash')
 
-    def get_owm_weather(self, lat, lon, api_key):
-        url = "https://api.openweathermap.org/data/3.0/onecall?lat=%s&lon=%s&appid=%s&exclude=minutely,alerts&units=metric" % (
-        lat, lon, api_key)
+    def get_owm_weather(self, lat, lon, api_key, units: WeatherUnits):
+        url = f"https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&appid={api_key}&exclude=minutely,alerts&units={units}"
         response = requests.get(url)
+        #TODO: Check for 200 code from the API before continuing
         data = json.loads(response.text)
         curr_weather = data["current"]
         hourly_forecast = data["hourly"]
@@ -27,10 +31,13 @@ class OWMModule:
         results = {"current_weather": curr_weather, "hourly_forecast": hourly_forecast, "daily_forecast": daily_forecast}
         return results
 
-    def get_weather(self, lat, lon, owm_api_key):
+    def get_weather(self, lat, lon, owm_api_key, units: WeatherUnits = None):
+        if units is None:
+            units = WeatherUnits.metric
+
         current_weather, daily_forecast = {}, {}
 
-        weather_results = self.get_owm_weather(lat, lon, owm_api_key)
+        weather_results = self.get_owm_weather(lat, lon, owm_api_key, units)
         current_weather = weather_results["current_weather"]
         hourly_forecast = weather_results["hourly_forecast"]
         daily_forecast = weather_results["daily_forecast"]

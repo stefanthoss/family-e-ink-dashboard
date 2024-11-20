@@ -12,9 +12,8 @@ import sys
 import json
 from datetime import datetime as dt
 from pytz import timezone
-from gcal.gcal import GcalModule
-from owm.owm import OWMModule
-from oai.oai import OAIModule
+from ics_cal.ics import IcsModule
+from owm.owm import OWMModule, WeatherUnits
 from render.render import RenderHelper
 
 
@@ -25,7 +24,7 @@ if __name__ == '__main__':
     configFile = open('config.json')
     config = json.load(configFile)
 
-    calendars = config['calendars'] # Google Calendar IDs
+    ics_url = config['ics_url'] # ICS calendar URL
     displayTZ = timezone(config['displayTZ']) # list of timezones - print(pytz.all_timezones)
     numCalDaysToShow = config['numCalDaysToShow'] # Number of days to retrieve from gcal, keep to 3 unless other parts of the code are changed too
     imageWidth = config['imageWidth']  # Width of image to be generated for display.
@@ -34,7 +33,7 @@ if __name__ == '__main__':
     lat = config["lat"] # Latitude in decimal of the location to retrieve weather forecast for
     lon = config["lon"] # Longitude in decimal of the location to retrieve weather forecast for
     owm_api_key = config["owm_api_key"]  # OpenWeatherMap API key. Required to retrieve weather forecast.
-    openai_api_key = config["openai_api_key"]  # OpenAI API key. Required to retrieve response from ChatGPT
+    weather_units = WeatherUnits[config["weather_units"]]  # Units of measurement for the weather, metric (default) and imperial units are available.
     path_to_server_image = config["path_to_server_image"]  # Location to save the generated image
 
     # Create and configure logger
@@ -46,25 +45,19 @@ if __name__ == '__main__':
 
     # Retrieve Weather Data
     owmModule = OWMModule()
-    current_weather, hourly_forecast, daily_forecast = owmModule.get_weather(lat, lon, owm_api_key)
+    current_weather, hourly_forecast, daily_forecast = owmModule.get_weather(lat, lon, owm_api_key, weather_units)
 
     # Retrieve Calendar Data
     currDate = dt.now(displayTZ).date()
     calStartDatetime = displayTZ.localize(dt.combine(currDate, dt.min.time()))
     calEndDatetime = displayTZ.localize(dt.combine(currDate + datetime.timedelta(days=numCalDaysToShow-1), dt.max.time()))
-    calModule = GcalModule()
+    calModule = IcsModule()
     eventList = calModule.get_events(
-        currDate, calendars, calStartDatetime, calEndDatetime, displayTZ, numCalDaysToShow)
-
-    # Retrieve Random Fact from OpenAI
-    oaiModule = OAIModule()
-    topic = oaiModule.get_random_fact(currDate, openai_api_key)
+        currDate, ics_url, calStartDatetime, calEndDatetime, displayTZ, numCalDaysToShow)
 
     # Render Dashboard Image
     renderService = RenderHelper(imageWidth, imageHeight, rotateAngle)
-    renderService.process_inputs(currDate, current_weather, hourly_forecast, daily_forecast, eventList, numCalDaysToShow,
-                                 topic, path_to_server_image)
+    renderService.process_inputs(currDate, current_weather, hourly_forecast, daily_forecast, eventList, numCalDaysToShow, path_to_server_image)
 
     logger.info("Completed dashboard update")
-
 
