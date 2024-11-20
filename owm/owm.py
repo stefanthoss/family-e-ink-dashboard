@@ -6,8 +6,7 @@ signed up for an OWM account and also obtained a valid API key that is specified
 import logging
 import requests
 import json
-import string
-import datetime
+import sys
 from enum import Enum
 
 class WeatherUnits(str, Enum):
@@ -21,15 +20,19 @@ class OWMModule:
     def get_owm_weather(self, lat, lon, api_key, units: WeatherUnits):
         url = f"https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&appid={api_key}&exclude=minutely,alerts&units={units}"
         response = requests.get(url)
-        #TODO: Check for 200 code from the API before continuing
-        data = json.loads(response.text)
-        curr_weather = data["current"]
-        hourly_forecast = data["hourly"]
-        # print(json.dumps(curr_weather, indent=2))
-        daily_forecast = data["daily"]
-        # print(json.dumps(forecast, indent=2))
-        results = {"current_weather": curr_weather, "hourly_forecast": hourly_forecast, "daily_forecast": daily_forecast}
-        return results
+
+        if response.ok:
+            data = json.loads(response.text)
+            curr_weather = data["current"]
+            hourly_forecast = data["hourly"]
+            # print(json.dumps(curr_weather, indent=2))
+            daily_forecast = data["daily"]
+            # print(json.dumps(forecast, indent=2))
+            results = {"current_weather": curr_weather, "hourly_forecast": hourly_forecast, "daily_forecast": daily_forecast}
+            return results
+        else:
+            self.logger.error(f"OpenWeatherMap returned error: {response.text}")
+            sys.exit(1)
 
     def get_weather(self, lat, lon, owm_api_key, units: WeatherUnits = None):
         if units is None:

@@ -6,9 +6,7 @@ This is where we retrieve events from the ICS calendar.
 
 from __future__ import print_function
 import datetime as dt
-import pickle
-import os.path
-import pathlib
+import sys
 import requests
 from ics import Calendar
 import logging
@@ -46,9 +44,13 @@ class IcsHelper:
         max_time_str = endDatetime.isoformat()        
 
         self.logger.info('Retrieving events')
-        
-        cal = Calendar(requests.get(ics_url).text)
-        #TODO: Handle issues with networking
+
+        response = requests.get(ics_url)
+        if response.ok:
+            cal = Calendar(response.text)
+        else:
+            self.logger.error(f"Received an error when downloading ICS: {response.text}")
+            sys.exit(1)
 
         if not cal.events:
             self.logger.info('No upcoming events found.')
