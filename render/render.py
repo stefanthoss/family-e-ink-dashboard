@@ -77,7 +77,7 @@ class RenderHelper:
                 datetime_str = '{}{}am'.format(str(datetimeObj.hour), datetime_str)
         return datetime_str
 
-    def process_inputs(self, current_date, current_weather, hourly_forecast, daily_forecast, event_list, num_cal_days, topic, path_to_server_image):
+    def process_inputs(self, current_date, current_weather, hourly_forecast, daily_forecast, event_list, num_cal_days, path_to_server_image):
 
         # Read html template
         with open(self.currPath + '/dashboard_template.html', 'r') as file:
@@ -107,16 +107,17 @@ class RenderHelper:
             weekday=current_date.strftime("%A"),
             tomorrow=(current_date + timedelta(days=1)).strftime("%A"),
             dayafter=(current_date + timedelta(days=2)).strftime("%A"),
+            dayafter2=(current_date + timedelta(days=3)).strftime("%A"),
+            dayafter3=(current_date + timedelta(days=4)).strftime("%A"),
             events_today=cal_events_list[0],
             events_tomorrow=cal_events_list[1],
             events_dayafter=cal_events_list[2],
+            events_dayafter2=cal_events_list[3],
+            events_dayafter3=cal_events_list[4],
             # I'm choosing to show the forecast for the next hour instead of the current weather
-            # current_weather_text=string.capwords(current_weather["weather"][0]["description"]),
-            # current_weather_id=current_weather["weather"][0]["id"],
-            # current_weather_temp=round(current_weather["temp"]),
-            current_weather_text=string.capwords(hourly_forecast[1]["weather"][0]["description"]),
-            current_weather_id=hourly_forecast[1]["weather"][0]["id"],
-            current_weather_temp=round(hourly_forecast[1]["temp"]),
+            current_weather_text=string.capwords(current_weather["weather"][0]["description"]),
+            current_weather_id=current_weather["weather"][0]["id"],
+            current_weather_temp=round(current_weather["temp"]),
             today_weather_id=daily_forecast[0]["weather"][0]["id"],
             tomorrow_weather_id=daily_forecast[1]["weather"][0]["id"],
             dayafter_weather_id=daily_forecast[2]["weather"][0]["id"],
@@ -128,9 +129,7 @@ class RenderHelper:
             dayafter_weather_min=str(round(daily_forecast[2]["temp"]["min"])),
             today_weather_max=str(round(daily_forecast[0]["temp"]["max"])),
             tomorrow_weather_max=str(round(daily_forecast[1]["temp"]["max"])),
-            dayafter_weather_max=str(round(daily_forecast[2]["temp"]["max"])),
-            topic_title=topic["title"],
-            topic_text=topic["text"]
+            dayafter_weather_max=str(round(daily_forecast[2]["temp"]["max"]))
         ))
         htmlFile.close()
 
