@@ -1,6 +1,10 @@
 # Config file
 config.json
 
+# Rendering
+render/dashboard.html
+render/dashboard.png
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
