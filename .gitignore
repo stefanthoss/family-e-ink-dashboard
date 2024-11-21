@@ -1,6 +1,3 @@
-# Config file
-config.json
-
 # Rendering
 render/dashboard.html
 render/dashboard.png

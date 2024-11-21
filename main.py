@@ -7,57 +7,69 @@ retrieve the information. So feel free to change up the code and amend it to you
 """
 
 import datetime
-import logging
-import sys
-import json
+import os
+import tempfile
+import time
 from datetime import datetime as dt
+from typing import Optional
+
+import structlog
+# from log_util import configure_logging
+import uvicorn
+from fastapi import FastAPI
+from fastapi.responses import FileResponse
 from pytz import timezone
+
+from config import MagInkDashConfig
 from ics_cal.ics import IcsModule
-from owm.owm import OWMModule, WeatherUnits
+from owm.owm import OWMModule
 from render.render import RenderHelper
 
+cfg = MagInkDashConfig.get_config()
 
-if __name__ == '__main__':
-    logger = logging.getLogger('maginkdash')
+app = FastAPI(title="MagInkDashPlus Server", version="0.1.0")
 
-    # Basic configuration settings (user replaceable)
-    configFile = open('config.json')
-    config = json.load(configFile)
+logger = structlog.get_logger()
 
-    ics_url = config['ics_url'] # ICS calendar URL
-    displayTZ = timezone(config['displayTZ']) # list of timezones - print(pytz.all_timezones)
-    numCalDaysToShow = config['numCalDaysToShow'] # Number of days to retrieve from gcal, keep to 3 unless other parts of the code are changed too
-    imageWidth = config['imageWidth']  # Width of image to be generated for display.
-    imageHeight = config['imageHeight']  # Height of image to be generated for display.
-    rotateAngle = config['rotateAngle']  # If image is rendered in portrait orientation, angle to rotate to fit screen
-    lat = config["lat"] # Latitude in decimal of the location to retrieve weather forecast for
-    lon = config["lon"] # Longitude in decimal of the location to retrieve weather forecast for
-    owm_api_key = config["owm_api_key"]  # OpenWeatherMap API key. Required to retrieve weather forecast.
-    weather_units = WeatherUnits[config["weather_units"]]  # Units of measurement for the weather, metric (default) and imperial units are available.
-    path_to_server_image = config["path_to_server_image"]  # Location to save the generated image
+owmModule = OWMModule()
+calModule = IcsModule()
 
-    # Create and configure logger
-    logging.basicConfig(filename="logfile.log", format='%(asctime)s %(levelname)s - %(message)s', filemode='a')
-    logger = logging.getLogger('maginkdash')
-    logger.addHandler(logging.StreamHandler(sys.stdout))  # print logger to stdout
-    logger.setLevel(logging.INFO)
-    logger.info("Starting dashboard update")
+@app.get("/image")
+def get_image() -> FileResponse:
+    start_time = time.time()
+    logger.info("Retrieving data...")
 
     # Retrieve Weather Data
-    owmModule = OWMModule()
-    current_weather, hourly_forecast, daily_forecast = owmModule.get_weather(lat, lon, owm_api_key, weather_units)
+    current_weather, hourly_forecast, daily_forecast = owmModule.get_weather(cfg.LAT, cfg.LNG, cfg.OWM_API_KEY, cfg.WEATHER_UNITS)
 
     # Retrieve Calendar Data
-    currDate = dt.now(displayTZ).date()
-    calStartDatetime = displayTZ.localize(dt.combine(currDate, dt.min.time()))
-    calEndDatetime = displayTZ.localize(dt.combine(currDate + datetime.timedelta(days=numCalDaysToShow-1), dt.max.time()))
-    calModule = IcsModule()
-    eventList = calModule.get_events(
-        currDate, ics_url, calStartDatetime, calEndDatetime, displayTZ, numCalDaysToShow)
+    currDate = dt.now(cfg.DISPLAY_TZ).date()
+    calStartDatetime = cfg.DISPLAY_TZ.localize(dt.combine(currDate, dt.min.time()))
+    calEndDatetime = cfg.DISPLAY_TZ.localize(dt.combine(currDate + datetime.timedelta(days=cfg.NUM_CAL_DATS_TO_SHOW-1), dt.max.time()))
+    eventList = calModule.get_events(currDate, cfg.ICS_URL, calStartDatetime, calEndDatetime, cfg.DISPLAY_TZ, cfg.NUM_CAL_DATS_TO_SHOW)
 
-    # Render Dashboard Image
-    renderService = RenderHelper(imageWidth, imageHeight, rotateAngle)
-    renderService.process_inputs(currDate, current_weather, hourly_forecast, daily_forecast, eventList, numCalDaysToShow, path_to_server_image)
+    end_time = time.time()
+    logger.info(f"Completed data retrieval in {round(end_time - start_time, 3)} seconds.")
 
-    logger.info("Completed dashboard update")
+    #TODO: delete=False leads to accumulating temporary files in /tmp but is currently needed because the FileResponse is async.
+    with tempfile.NamedTemporaryFile(suffix='.png', delete_on_close=False, delete=False) as tf:
+        start_time = time.time()
+        logger.info(f"Generating image at {tf.name}...")
 
+        renderService = RenderHelper(cfg.IMAGE_WIDTH, cfg.IMAGE_HEIGHT, cfg.ROTATE_ANGLE)
+        renderService.process_inputs(currDate, current_weather, hourly_forecast, daily_forecast, eventList, cfg.NUM_CAL_DATS_TO_SHOW, tf.name)
+
+        end_time = time.time()
+        logger.info(f"Completed image generation in {round(end_time - start_time, 3)} seconds, serving image now.")
+
+        return FileResponse(
+            tf.name,
+            media_type="image/png",
+            filename="dashboard.png"
+        )
+
+if __name__ == '__main__':
+    logger.info(f"Starting web server...")
+    config = uvicorn.Config(app, host="127.0.0.1", port=8080)
+    server = uvicorn.Server(config)
+    server.run()
