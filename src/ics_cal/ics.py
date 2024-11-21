@@ -17,31 +17,35 @@ class IcsModule:
         return delta.days
 
     def get_short_time(self, datetimeObj):
-        datetime_str = ''
+        datetime_str = ""
         if datetimeObj.minute > 0:
-            datetime_str = '.{:02d}'.format(datetimeObj.minute)
+            datetime_str = ".{:02d}".format(datetimeObj.minute)
 
         if datetimeObj.hour == 0:
-            datetime_str = '12{}am'.format(datetime_str)
+            datetime_str = "12{}am".format(datetime_str)
         elif datetimeObj.hour == 12:
-            datetime_str = '12{}pm'.format(datetime_str)
+            datetime_str = "12{}pm".format(datetime_str)
         elif datetimeObj.hour > 12:
-            datetime_str = '{}{}pm'.format(str(datetimeObj.hour % 12), datetime_str)
+            datetime_str = "{}{}pm".format(str(datetimeObj.hour % 12), datetime_str)
         else:
-            datetime_str = '{}{}am'.format(str(datetimeObj.hour), datetime_str)
+            datetime_str = "{}{}am".format(str(datetimeObj.hour), datetime_str)
         return datetime_str
 
-    def get_events(self, currDate, ics_url, calStartDatetime, calEndDatetime, displayTZ, numDays):
-        eventList = self.calHelper.retrieve_events(ics_url, calStartDatetime, calEndDatetime, displayTZ)
+    def get_events(
+        self, currDate, ics_url, calStartDatetime, calEndDatetime, displayTZ, numDays
+    ):
+        eventList = self.calHelper.retrieve_events(
+            ics_url, calStartDatetime, calEndDatetime, displayTZ
+        )
 
         # check if event stretches across multiple days
         calList = []
         for i in range(numDays):
             calList.append([])
         for event in eventList:
-            idx = self.get_day_in_cal(currDate, event['startDatetime'].date())
-            if event['isMultiday']:
-                end_idx = self.get_day_in_cal(currDate, event['endDatetime'].date())
+            idx = self.get_day_in_cal(currDate, event["startDatetime"].date())
+            if event["isMultiday"]:
+                end_idx = self.get_day_in_cal(currDate, event["endDatetime"].date())
                 if idx < 0:
                     idx = 0
                 if end_idx >= len(calList):

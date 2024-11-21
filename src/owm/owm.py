@@ -15,6 +15,7 @@ class WeatherUnits(str, Enum):
     metric = "metric"
     imperial = "imperial"
 
+
 class OWMModule:
     def __init__(self):
         self.logger = structlog.get_logger()
@@ -30,7 +31,11 @@ class OWMModule:
             # print(json.dumps(curr_weather, indent=2))
             daily_forecast = data["daily"]
             # print(json.dumps(forecast, indent=2))
-            results = {"current_weather": curr_weather, "hourly_forecast": hourly_forecast, "daily_forecast": daily_forecast}
+            results = {
+                "current_weather": curr_weather,
+                "hourly_forecast": hourly_forecast,
+                "daily_forecast": daily_forecast,
+            }
             return results
         else:
             self.logger.error(f"OpenWeatherMap returned error: {response.text}")

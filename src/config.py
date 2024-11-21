@@ -1,4 +1,3 @@
-
 import os
 import sys
 
@@ -10,6 +9,7 @@ from owm.owm import WeatherUnits
 logger = structlog.get_logger()
 
 _current_config = None
+
 
 class MagInkDashConfig:
     ICS_URL: str = os.getenv("ICS_URL")
