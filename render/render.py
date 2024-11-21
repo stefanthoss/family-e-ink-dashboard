@@ -7,21 +7,22 @@ format the calendar exactly the way I want it using HTML/CSS, and (ii) I can del
 calendar and refreshing of the eInk display.
 """
 
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from time import sleep
-from datetime import timedelta
 import pathlib
 import string
+from datetime import timedelta
+from time import sleep
+
+import structlog
 from PIL import Image
-import logging
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 
 
 class RenderHelper:
 
     def __init__(self, width, height, angle):
-        self.logger = logging.getLogger('maginkdash')
+        self.logger = structlog.get_logger()
         self.currPath = str(pathlib.Path(__file__).parent.absolute())
         self.htmlFile = 'file://' + self.currPath + '/dashboard.html'
         self.imageWidth = width
@@ -57,7 +58,7 @@ class RenderHelper:
         sleep(1)
         driver.get_screenshot_as_file(self.currPath + '/dashboard.png')
         driver.get_screenshot_as_file(path_to_server_image)
-        self.logger.info('Screenshot captured and saved to file.')
+        self.logger.debug(f"Screenshot captured and saved to file {path_to_server_image}.")
 
     def get_short_time(self, datetimeObj, is24hour=False):
         datetime_str = ''

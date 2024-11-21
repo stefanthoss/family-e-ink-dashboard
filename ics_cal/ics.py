@@ -2,13 +2,14 @@
 This is where we retrieve events from an ICS calendar.
 """
 
+import structlog
+
 from ics_cal.icshelper import IcsHelper
-import logging
 
 
 class IcsModule:
     def __init__(self):
-        self.logger = logging.getLogger('maginkdash')
+        self.logger = structlog.get_logger()
         self.calHelper = IcsHelper()
 
     def get_day_in_cal(self, startDate, eventDate):

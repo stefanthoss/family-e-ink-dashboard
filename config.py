@@ -1,12 +1,13 @@
-import logging
+
 import os
 import sys
 
+import structlog
 from pytz import timezone
 
 from owm.owm import WeatherUnits
 
-logger = logging.getLogger('maginkdash')
+logger = structlog.get_logger()
 
 _current_config = None
 

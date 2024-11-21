@@ -14,11 +14,9 @@ from datetime import datetime as dt
 from typing import Optional
 
 import structlog
-# from log_util import configure_logging
 import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
-from pytz import timezone
 
 from config import MagInkDashConfig
 from ics_cal.ics import IcsModule
@@ -54,7 +52,7 @@ def get_image() -> FileResponse:
     #TODO: delete=False leads to accumulating temporary files in /tmp but is currently needed because the FileResponse is async.
     with tempfile.NamedTemporaryFile(suffix='.png', delete_on_close=False, delete=False) as tf:
         start_time = time.time()
-        logger.info(f"Generating image at {tf.name}...")
+        logger.info(f"Generating image...")
 
         renderService = RenderHelper(cfg.IMAGE_WIDTH, cfg.IMAGE_HEIGHT, cfg.ROTATE_ANGLE)
         renderService.process_inputs(currDate, current_weather, hourly_forecast, daily_forecast, eventList, cfg.NUM_CAL_DATS_TO_SHOW, tf.name)

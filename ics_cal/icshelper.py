@@ -5,17 +5,19 @@ This is where we retrieve events from the ICS calendar.
 """
 
 from __future__ import print_function
+
 import datetime as dt
 import sys
+
 import requests
+import structlog
 from ics import Calendar
-import logging
 
 
 class IcsHelper:
 
     def __init__(self):
-        self.logger = logging.getLogger('maginkdash')
+        self.logger = structlog.get_logger()
 
     def to_datetime(self, isoDatetime, localTZ):
         # replace Z with +00:00 is a workaround until datetime library decides what to do with the Z notation
@@ -43,7 +45,7 @@ class IcsHelper:
         min_time_str = startDatetime.isoformat()
         max_time_str = endDatetime.isoformat()        
 
-        self.logger.info('Retrieving events')
+        self.logger.info("Retrieving events from ICS...")
 
         response = requests.get(ics_url)
         if response.ok:
@@ -53,7 +55,7 @@ class IcsHelper:
             sys.exit(1)
 
         if not cal.events:
-            self.logger.info('No upcoming events found.')
+            self.logger.info("No upcoming calendar events found.")
         for event in cal.events:
             # extracting and converting events data into a new list
             new_event = {'summary': event.name}

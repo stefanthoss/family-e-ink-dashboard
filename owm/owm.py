@@ -3,11 +3,13 @@ This is where we retrieve weather forecast from OpenWeatherMap. Before doing so,
 signed up for an OWM account and also obtained a valid API key that is specified in the config.json file.
 """
 
-import logging
-import requests
 import json
 import sys
 from enum import Enum
+
+import requests
+import structlog
+
 
 class WeatherUnits(str, Enum):
     metric = "metric"
@@ -15,7 +17,7 @@ class WeatherUnits(str, Enum):
 
 class OWMModule:
     def __init__(self):
-        self.logger = logging.getLogger('maginkdash')
+        self.logger = structlog.get_logger()
 
     def get_owm_weather(self, lat, lon, api_key, units: WeatherUnits):
         url = f"https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&appid={api_key}&exclude=minutely,alerts&units={units}"
