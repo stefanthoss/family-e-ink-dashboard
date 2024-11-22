@@ -12,4 +12,4 @@ services:
       - LAT=
       - LNG=
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
