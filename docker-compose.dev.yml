@@ -1,0 +1,16 @@
+services:
+  mag-ink-dash-plus:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mag-ink-dash-plus
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - LOG_LEVEL=DEBUG
+      - OWM_API_KEY=
+      - ICS_URL=
+      - WEATHER_UNITS=imperial
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]

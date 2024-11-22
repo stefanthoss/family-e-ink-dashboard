@@ -67,6 +67,16 @@ ROTATE_ANGLE | No | 0 | If image is rendered in portrait orientation, angle to r
 
 * Recurring events in the ICS calendar feed are currently not supported
 
+## Development
+
+Run
+
+```shell
+docker compose -f docker-compose.dev.yml up --build
+```
+
+locally to build a new image and start it, API docs will be served at <http://localhost:5000/docs>.
+
 ## Acknowledgements
 
 - [Lexend Font](https://fonts.google.com/specimen/Lexend) and [Tilt Warp Font](https://fonts.google.com/specimen/Tilt+Warp): Fonts used for the dashboard display

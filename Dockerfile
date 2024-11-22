@@ -9,6 +9,6 @@ RUN apt-get update \
 
 COPY poetry.lock pyproject.toml src /app/
 
-RUN poetry install --no-dev --no-interaction
+RUN poetry install --only main --no-interaction
 
 CMD ["poetry", "run", "uvicorn", "--host", "0.0.0.0", "--port", "5000", "main:app"]
