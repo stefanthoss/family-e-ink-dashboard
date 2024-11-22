@@ -1,0 +1,15 @@
+services:
+  mag-ink-dash-plus:
+    image: ghcr.io/stefanthoss/mag-ink-dash-plus:latest
+    container_name: mag-ink-dash-plus
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - OWM_API_KEY=
+      - ICS_URL=
+      - DISPLAY_TZ=
+      - LAT=
+      - LNG=
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
