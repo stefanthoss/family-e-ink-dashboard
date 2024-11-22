@@ -26,12 +26,9 @@ class OWMModule:
 
         if response.ok:
             data = json.loads(response.text)
-            print(url)
             curr_weather = data["current"]
             hourly_forecast = data["hourly"]
-            # print(json.dumps(curr_weather, indent=2))
             daily_forecast = data["daily"]
-            # print(json.dumps(forecast, indent=2))
             results = {
                 "current_weather": curr_weather,
                 "hourly_forecast": hourly_forecast,
@@ -52,26 +49,5 @@ class OWMModule:
         current_weather = weather_results["current_weather"]
         hourly_forecast = weather_results["hourly_forecast"]
         daily_forecast = weather_results["daily_forecast"]
-
-        """        
-        print("Current weather is %s, and the temperature is %s." % (
-            string.capwords(current_weather["weather"][0]["description"]), current_weather["temp"]))
-
-        print("")
-        dt = datetime.datetime.fromtimestamp(hourly_forecast[1]["dt"])
-        print("Next Hour: " + dt.strftime("%m/%d/%Y, %H:%M:%S"))
-        print("Type: " + string.capwords(hourly_forecast[1]["weather"][0]["description"]))
-        print("Temp: " + str(round(hourly_forecast[1]["temp"])))
-        print("Chance of Rain: " + str(hourly_forecast[1]["pop"] * 100) + "%")
-        
-        for i in range(3):
-            print("")
-            dt = datetime.datetime.fromtimestamp(daily_forecast[i]["dt"])
-            print("Date: " + dt.strftime("%m/%d/%Y, %H:%M:%S"))
-            print("Type: " + string.capwords(daily_forecast[i]["weather"][0]["description"]))
-            print("Min: " + str(round(daily_forecast[i]["temp"]["min"])))
-            print("Max: " + str(round(daily_forecast[i]["temp"]["max"])))
-            print("Chance of Rain: " + str(daily_forecast[i]["pop"] * 100) + "%")
-        """
 
         return current_weather, hourly_forecast, daily_forecast

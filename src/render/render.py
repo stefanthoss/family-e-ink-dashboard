@@ -47,6 +47,8 @@ class RenderHelper:
 
     def get_screenshot(self, path_to_server_image):
         opts = Options()
+        opts.add_argument("--disable-dev-shm-usage")
+        opts.add_argument("--disable-gpu")
         opts.add_argument("--disable-extensions")
         opts.add_argument("--force-device-scale-factor=1")
         opts.add_argument("--headless")
@@ -61,6 +63,7 @@ class RenderHelper:
         self.logger.debug(
             f"Screenshot captured and saved to file {path_to_server_image}."
         )
+        driver.close()
 
     def get_short_time(self, datetimeObj, is24hour=False):
         datetime_str = ""
