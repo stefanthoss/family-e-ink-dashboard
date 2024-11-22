@@ -21,11 +21,12 @@ class OWMModule:
         self.logger = structlog.get_logger()
 
     def get_owm_weather(self, lat, lon, api_key, units: WeatherUnits):
-        url = f"https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&appid={api_key}&exclude=minutely,alerts&units={units}"
+        url = f"https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&appid={api_key}&exclude=minutely,alerts&units={units.value}"
         response = requests.get(url)
 
         if response.ok:
             data = json.loads(response.text)
+            print(url)
             curr_weather = data["current"]
             hourly_forecast = data["hourly"]
             # print(json.dumps(curr_weather, indent=2))
