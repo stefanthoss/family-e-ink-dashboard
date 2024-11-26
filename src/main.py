@@ -96,7 +96,7 @@ def get_image() -> FileResponse:
             f"Completed image generation in {round(end_time - start_time, 3)} seconds, serving image now."
         )
 
-        return FileResponse(tf.name, media_type="image/png", filename="dashboard.png")
+        return FileResponse(tf.name, media_type="image/png")
 
 
 if __name__ == "__main__":
