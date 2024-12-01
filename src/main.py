@@ -38,7 +38,12 @@ def health_check():
     return {"status": "ok"}
 
 
-@app.get("/image")
+@app.get("/test", summary="Background image only for testing",)
+def get_background() -> FileResponse:
+    return FileResponse("render/background.png", media_type="image/png")
+
+
+@app.get("/image", summary="Rendered dashboard image")
 def get_image() -> FileResponse:
     start_time = time.time()
     logger.info("Retrieving data...")
