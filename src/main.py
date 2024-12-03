@@ -38,7 +38,10 @@ def health_check():
     return {"status": "ok"}
 
 
-@app.get("/test", summary="Background image for testing",)
+@app.get(
+    "/test",
+    summary="Background image for testing",
+)
 def get_background() -> FileResponse:
     return FileResponse("render/background.png", media_type="image/png")
 
