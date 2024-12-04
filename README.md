@@ -37,7 +37,7 @@ Some features of the dashboard:
 
 4. Using the DNS name or IP of your host machine, you can go to  <http://IP_ADDRESS:5000/docs> to see whether the API is running.
 
-5. As for the Inkplate, I'm not going to devote too much space here since there are [official resources that describe how to set it up](https://inkplate.readthedocs.io/en/latest/get-started.html). It may take some trial and error for those new to microcontroller programming but it's all worth it! Only the Arduino portion of the guide is relevant, and you'll need to be able to run *.ino scripts via Arduino IDE before proceeding. From there, run the `inkplate.ino` file from the `inkplate` folder from the Arduino IDE when connected to the Inkplate.
+5. As for the Inkplate, I'm not going to devote too much space here since there are [official resources that describe how to set it up](https://inkplate.readthedocs.io/en/latest/get-started.html). It may take some trial and error for those new to microcontroller programming but it's all worth it! Only the Arduino portion of the guide is relevant, and you'll need to be able to run *.ino scripts via Arduino IDE before proceeding. From there, run the `inkplate10.ino` file from the `inkplate10` folder from the Arduino IDE when connected to the Inkplate.
 
 6. That's all! Your Magic Dashboard should now be refreshed every hour! 
 
