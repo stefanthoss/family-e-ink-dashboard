@@ -60,14 +60,10 @@ class IcsHelper:
                         event.end.to(localTZ).isoformat()
                     )
 
-                self.logger.debug(
-                    f'Start: {event.begin} -> {new_event["startDatetime"]}'
-                )
-                self.logger.debug(f'End: {event.end} -> {new_event["endDatetime"]}')
                 new_event["isMultiday"] = (
                     new_event["endDatetime"] - new_event["startDatetime"]
                 ) > dt.timedelta(days=1)
-                self.logger.debug(f"New event: {new_event}")
+                self.logger.debug(f"Adding event: {new_event}")
                 event_list.append(new_event)
 
         # We need to sort eventList because the event will be sorted in "calendar order" instead of hours order
