@@ -27,9 +27,7 @@ class IcsHelper:
         # check if end time is at 00:00 of next day, if so set to max time for day before
         if endTime.hour == 0 and endTime.minute == 0 and endTime.second == 0:
             newEndtime = localTZ.localize(
-                dt.datetime.combine(
-                    endTime.date() - dt.timedelta(days=1), dt.datetime.max.time()
-                )
+                dt.datetime.combine(endTime.date() - dt.timedelta(days=1), dt.datetime.max.time())
             )
             return newEndtime
         else:
@@ -43,19 +41,13 @@ class IcsHelper:
         # Call the Google Calendar API and return a list of events that fall within the specified dates
         event_list = []
 
-        # TODO: Filter calendar events by time
-        min_time_str = startDatetime.isoformat()
-        max_time_str = endDatetime.isoformat()
-
         self.logger.info("Retrieving events from ICS...")
 
         response = requests.get(ics_url)
         if response.ok:
             cal = Calendar(response.text)
         else:
-            self.logger.error(
-                f"Received an error when downloading ICS: {response.text}"
-            )
+            self.logger.error(f"Received an error when downloading ICS: {response.text}")
             sys.exit(1)
 
         if not cal.events:
@@ -64,9 +56,7 @@ class IcsHelper:
             # extracting and converting events data into a new list
             new_event = {"summary": event.name}
             new_event["allday"] = event.all_day
-            new_event["startDatetime"] = self.to_datetime(
-                event.begin.isoformat(), localTZ
-            )
+            new_event["startDatetime"] = self.to_datetime(event.begin.isoformat(), localTZ)
             new_event["endDatetime"] = self.adjust_end_time(
                 self.to_datetime(event.end.isoformat(), localTZ), localTZ
             )

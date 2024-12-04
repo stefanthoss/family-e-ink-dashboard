@@ -7,11 +7,9 @@ retrieve the information. So feel free to change up the code and amend it to you
 """
 
 import datetime
-import os
 import tempfile
 import time
 from datetime import datetime as dt
-from typing import Optional
 
 import structlog
 import uvicorn
@@ -76,20 +74,14 @@ def get_image() -> FileResponse:
     )
 
     end_time = time.time()
-    logger.info(
-        f"Completed data retrieval in {round(end_time - start_time, 3)} seconds."
-    )
+    logger.info(f"Completed data retrieval in {round(end_time - start_time, 3)} seconds.")
 
     # TODO: delete=False leads to accumulating temporary files in /tmp but is currently needed because the FileResponse is async.
-    with tempfile.NamedTemporaryFile(
-        suffix=".png", delete_on_close=False, delete=False
-    ) as tf:
+    with tempfile.NamedTemporaryFile(suffix=".png", delete_on_close=False, delete=False) as tf:
         start_time = time.time()
-        logger.info(f"Generating image...")
+        logger.info("Generating image...")
 
-        renderService = RenderHelper(
-            cfg.IMAGE_WIDTH, cfg.IMAGE_HEIGHT, cfg.ROTATE_ANGLE
-        )
+        renderService = RenderHelper(cfg.IMAGE_WIDTH, cfg.IMAGE_HEIGHT, cfg.ROTATE_ANGLE)
         renderService.process_inputs(
             currTime,
             current_weather,
@@ -109,7 +101,7 @@ def get_image() -> FileResponse:
 
 
 if __name__ == "__main__":
-    logger.info(f"Starting web server...")
+    logger.info("Starting web server...")
     config = uvicorn.Config(app, host="127.0.0.1", port=5000, log_level="debug")
     server = uvicorn.Server(config)
     server.run()

@@ -31,9 +31,7 @@ class IcsModule:
             datetime_str = "{}{}am".format(str(datetimeObj.hour), datetime_str)
         return datetime_str
 
-    def get_events(
-        self, currDate, ics_url, calStartDatetime, calEndDatetime, displayTZ, numDays
-    ):
+    def get_events(self, currDate, ics_url, calStartDatetime, calEndDatetime, displayTZ, numDays):
         eventList = self.calHelper.retrieve_events(
             ics_url, calStartDatetime, calEndDatetime, displayTZ
         )

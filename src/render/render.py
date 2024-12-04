@@ -13,7 +13,6 @@ from datetime import timedelta
 from time import sleep
 
 import structlog
-from PIL import Image
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -39,9 +38,7 @@ class RenderHelper:
 
         # "Internal width you want to set+Set "outer frame width" to window size
         target_width = self.imageWidth + (current_window_size["width"] - inner_width)
-        target_height = self.imageHeight + (
-            current_window_size["height"] - inner_height
-        )
+        target_height = self.imageHeight + (current_window_size["height"] - inner_height)
 
         driver.set_window_rect(width=target_width, height=target_height)
 
@@ -60,9 +57,7 @@ class RenderHelper:
         sleep(1)
         driver.get_screenshot_as_file(self.currPath + "/dashboard.png")
         driver.get_screenshot_as_file(path_to_server_image)
-        self.logger.debug(
-            f"Screenshot captured and saved to file {path_to_server_image}."
-        )
+        self.logger.debug(f"Screenshot captured and saved to file {path_to_server_image}.")
         driver.close()
 
     def get_short_time(self, datetimeObj, is24hour=False):
@@ -105,9 +100,7 @@ class RenderHelper:
             if len(event_list[i]) > 0:
                 cal_events_text = ""
             else:
-                cal_events_text = (
-                    '<div class="event"><span class="event-time">None</span></div>'
-                )
+                cal_events_text = '<div class="event"><span class="event-time">None</span></div>'
             for event in event_list[i]:
                 cal_events_text += '<div class="event">'
                 if event["isMultiday"] or event["allday"]:
@@ -140,9 +133,7 @@ class RenderHelper:
                 events_dayafter2=cal_events_list[3],
                 events_dayafter3=cal_events_list[4],
                 # I'm choosing to show the forecast for the next hour instead of the current weather
-                current_weather_text=string.capwords(
-                    current_weather["weather"][0]["description"]
-                ),
+                current_weather_text=string.capwords(current_weather["weather"][0]["description"]),
                 current_weather_id=current_weather["weather"][0]["id"],
                 current_weather_temp=round(current_weather["temp"]),
                 today_weather_id=daily_forecast[0]["weather"][0]["id"],
