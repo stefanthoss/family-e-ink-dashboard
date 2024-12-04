@@ -19,13 +19,11 @@ from selenium.webdriver.common.by import By
 
 
 class RenderHelper:
-    def __init__(self, width, height, angle):
+    def __init__(self, cfg):
         self.logger = structlog.get_logger()
         self.currPath = str(pathlib.Path(__file__).parent.absolute())
         self.htmlFile = "file://" + self.currPath + "/dashboard.html"
-        self.imageWidth = width
-        self.imageHeight = height
-        self.rotateAngle = angle
+        self.cfg = cfg
 
     def set_viewport_size(self, driver):
         # Extract the current window size from the driver
@@ -37,8 +35,12 @@ class RenderHelper:
         inner_height = int(html.get_attribute("clientHeight"))
 
         # "Internal width you want to set+Set "outer frame width" to window size
-        target_width = self.imageWidth + (current_window_size["width"] - inner_width)
-        target_height = self.imageHeight + (current_window_size["height"] - inner_height)
+        target_width = self.cfg.IMAGE_WIDTH + (
+            current_window_size["width"] - inner_width
+        )
+        target_height = self.cfg.IMAGE_HEIGHT + (
+            current_window_size["height"] - inner_height
+        )
 
         driver.set_window_rect(width=target_width, height=target_height)
 
@@ -84,8 +86,7 @@ class RenderHelper:
         current_weather,
         hourly_forecast,
         daily_forecast,
-        event_list,
-        num_cal_days,
+        events,
         path_to_server_image,
     ):
         # Read html template
@@ -95,13 +96,11 @@ class RenderHelper:
         current_date = current_time.date()
 
         # Populate the date and events
+        cal_events_days = []
         cal_events_list = []
-        for i in range(num_cal_days):
-            if len(event_list[i]) > 0:
-                cal_events_text = ""
-            else:
-                cal_events_text = '<div class="event"><span class="event-time">None</span></div>'
-            for event in event_list[i]:
+        for d, e in events:
+            cal_events_text = ""
+            for event in e:
                 cal_events_text += '<div class="event">'
                 if event["isMultiday"] or event["allday"]:
                     cal_events_text += event["summary"]
@@ -113,7 +112,17 @@ class RenderHelper:
                         + event["summary"]
                     )
                 cal_events_text += "</div>\n"
+            cal_events_days.append(d.strftime("%A (%x)"))
             cal_events_list.append(cal_events_text)
+
+        if len(cal_events_days) == 0:
+            cal_events_days.append("Today")
+            cal_events_list.append(
+                '<div class="event"><span class="event-time">None</span></div>'
+            )
+
+        self.extend_list(cal_events_days, self.cfg.NUM_DAYS_IN_TEMPLATE, "")
+        self.extend_list(cal_events_list, self.cfg.NUM_DAYS_IN_TEMPLATE, "")
 
         # Append the bottom and write the file
         htmlFile = open(self.currPath + "/dashboard.html", "w")
@@ -123,15 +132,16 @@ class RenderHelper:
                 day=current_date.strftime("%-d"),
                 month=current_date.strftime("%B"),
                 weekday=current_date.strftime("%A"),
-                tomorrow=(current_date + timedelta(days=1)).strftime("%A"),
-                dayafter=(current_date + timedelta(days=2)).strftime("%A"),
-                dayafter2=(current_date + timedelta(days=3)).strftime("%A"),
-                dayafter3=(current_date + timedelta(days=4)).strftime("%A"),
+                dayaftertomorrow=(current_date + timedelta(days=2)).strftime("%A"),
+                dayafter=cal_events_days[1],
+                dayafter2=cal_events_days[2],
+                dayafter3=cal_events_days[3],
+                dayafter4=cal_events_days[4],
                 events_today=cal_events_list[0],
-                events_tomorrow=cal_events_list[1],
-                events_dayafter=cal_events_list[2],
-                events_dayafter2=cal_events_list[3],
-                events_dayafter3=cal_events_list[4],
+                events_dayafter=cal_events_list[1],
+                events_dayafter2=cal_events_list[2],
+                events_dayafter3=cal_events_list[3],
+                events_dayafter4=cal_events_list[4],
                 # I'm choosing to show the forecast for the next hour instead of the current weather
                 current_weather_text=string.capwords(current_weather["weather"][0]["description"]),
                 current_weather_id=current_weather["weather"][0]["id"],
@@ -153,3 +163,6 @@ class RenderHelper:
         htmlFile.close()
 
         self.get_screenshot(path_to_server_image)
+
+    def extend_list(self, my_list, new_length, default_value):
+        return my_list.extend([default_value] * (new_length - len(my_list)))

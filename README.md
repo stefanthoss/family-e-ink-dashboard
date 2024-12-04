@@ -37,7 +37,7 @@ Some features of the dashboard:
 
 4. Using the DNS name or IP of your host machine, you can go to  <http://IP_ADDRESS:5000/docs> to see whether the API is running.
 
-5. As for the Inkplate, I'm not going to devote too much space here since there are [official resources that describe how to set it up](https://inkplate.readthedocs.io/en/latest/get-started.html). It may take some trial and error for those new to microcontroller programming but it's all worth it! Only the Arduino portion of the guide is relevant, and you'll need to be able to run *.ino scripts via Arduino IDE before proceeding. From there, run the `inkplate.ino` file from the `inkplate` folder from the Arduino IDE when connected to the Inkplate.
+5. As for the Inkplate, I'm not going to devote too much space here since there are [official resources that describe how to set it up](https://inkplate.readthedocs.io/en/latest/get-started.html). It may take some trial and error for those new to microcontroller programming but it's all worth it! Only the Arduino portion of the guide is relevant, and you'll need to be able to run *.ino scripts via Arduino IDE before proceeding. From there, run the `inkplate10.ino` file from the `inkplate10` folder from the Arduino IDE when connected to the Inkplate.
 
 6. That's all! Your Magic Dashboard should now be refreshed every hour! 
 
@@ -57,10 +57,9 @@ DISPLAY_TZ | No | America/Los_Angeles | Time zone for displaying the calendar
 LAT | No | 34.118333 | Latitude in decimal of the location to retrieve weather forecast for
 LNG | No | -118.300333 | Longitude in decimal of the location to retrieve weather forecast for
 WEATHER_UNITS | No | metric | Units of measurement for the temperature, `metric` and `imperial` units are available
-NUM_CAL_DATS_TO_SHOW | No | 5 | Number of days to show from the calendar
+NUM_CAL_DAYS_TO_QUERY | No | 30 | Number of days to query from the calendar
 IMAGE_WIDTH | No | 1200 | Width of image to be generated for display
 IMAGE_HEIGHT | No | 825 | Height of image to be generated for display
-ROTATE_ANGLE | No | 0 | If image is rendered in portrait orientation, angle to rotate to fit screen
 
 ## Development
 
