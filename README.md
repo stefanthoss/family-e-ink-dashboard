@@ -62,10 +62,6 @@ IMAGE_WIDTH | No | 1200 | Width of image to be generated for display
 IMAGE_HEIGHT | No | 825 | Height of image to be generated for display
 ROTATE_ANGLE | No | 0 | If image is rendered in portrait orientation, angle to rotate to fit screen
 
-## Limitations
-
-* Recurring events in the ICS calendar feed are currently not supported
-
 ## Development
 
 Run

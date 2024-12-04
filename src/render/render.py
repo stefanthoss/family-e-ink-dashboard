@@ -71,7 +71,7 @@ class RenderHelper:
             datetime_str = "{}:{:02d}".format(datetimeObj.hour, datetimeObj.minute)
         else:
             if datetimeObj.minute > 0:
-                datetime_str = ".{:02d}".format(datetimeObj.minute)
+                datetime_str = ":{:02d}".format(datetimeObj.minute)
 
             if datetimeObj.hour == 0:
                 datetime_str = "12{}am".format(datetime_str)
