@@ -35,12 +35,8 @@ class RenderHelper:
         inner_height = int(html.get_attribute("clientHeight"))
 
         # "Internal width you want to set+Set "outer frame width" to window size
-        target_width = self.cfg.IMAGE_WIDTH + (
-            current_window_size["width"] - inner_width
-        )
-        target_height = self.cfg.IMAGE_HEIGHT + (
-            current_window_size["height"] - inner_height
-        )
+        target_width = self.cfg.IMAGE_WIDTH + (current_window_size["width"] - inner_width)
+        target_height = self.cfg.IMAGE_HEIGHT + (current_window_size["height"] - inner_height)
 
         driver.set_window_rect(width=target_width, height=target_height)
 
@@ -117,9 +113,7 @@ class RenderHelper:
 
         if len(cal_events_days) == 0:
             cal_events_days.append("Today")
-            cal_events_list.append(
-                '<div class="event"><span class="event-time">None</span></div>'
-            )
+            cal_events_list.append('<div class="event"><span class="event-time">None</span></div>')
 
         self.extend_list(cal_events_days, self.cfg.NUM_DAYS_IN_TEMPLATE, "")
         self.extend_list(cal_events_list, self.cfg.NUM_DAYS_IN_TEMPLATE, "")

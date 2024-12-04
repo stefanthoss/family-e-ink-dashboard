@@ -56,11 +56,8 @@ def get_image() -> FileResponse:
     )
 
     currTime = dt.datetime.now(pytz.timezone(cfg.DISPLAY_TZ))
-    currDate = currTime.date()
     calStartDatetime = currTime.replace(hour=0, minute=0, second=0, microsecond=0)
-    calEndDatetime = calStartDatetime + dt.timedelta(
-        days=cfg.NUM_CAL_DAYS_TO_QUERY, seconds=-1
-    )
+    calEndDatetime = calStartDatetime + dt.timedelta(days=cfg.NUM_CAL_DAYS_TO_QUERY, seconds=-1)
 
     events = calModule.get_events(
         cfg.ICS_URL,

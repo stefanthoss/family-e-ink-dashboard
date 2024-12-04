@@ -26,9 +26,7 @@ class MagInkDashConfig:
     LAT: float = float(os.getenv("LAT", 34.118333))
     LNG: float = float(os.getenv("LNG", -118.300333))
     WEATHER_UNITS: WeatherUnits = WeatherUnits[os.getenv("WEATHER_UNITS", "metric")]
-    NUM_DAYS_IN_TEMPLATE: int = (
-        5  # Not configurable because it's hard-coded in the HTML template
-    )
+    NUM_DAYS_IN_TEMPLATE: int = 5  # Not configurable because it's hard-coded in the HTML template
 
     def get_config():
         global _current_config
