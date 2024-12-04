@@ -6,12 +6,9 @@ As a dashboard, there are many other things that could be displayed, and it can 
 retrieve the information. So feel free to change up the code and amend it to your needs.
 """
 
-import datetime
-import os
+import datetime as dt
 import tempfile
 import time
-from datetime import datetime as dt
-from typing import Optional
 
 import structlog
 import uvicorn
@@ -56,24 +53,23 @@ def get_image() -> FileResponse:
         cfg.LAT, cfg.LNG, cfg.OWM_API_KEY, cfg.WEATHER_UNITS
     )
 
-    # Retrieve Calendar Data
-    currTime = dt.now(cfg.DISPLAY_TZ)
+    currTime = dt.datetime.now(cfg.DISPLAY_TZ)
     currDate = currTime.date()
-    calStartDatetime = cfg.DISPLAY_TZ.localize(dt.combine(currDate, dt.min.time()))
-    calEndDatetime = cfg.DISPLAY_TZ.localize(
-        dt.combine(
-            currDate + datetime.timedelta(days=cfg.NUM_CAL_DATS_TO_SHOW - 1),
-            dt.max.time(),
-        )
+    calStartDatetime = currTime.replace(hour=0, minute=0, second=0, microsecond=0)
+    calEndDatetime = calStartDatetime + dt.timedelta(
+        days=cfg.NUM_CAL_DAYS_TO_QUERY, seconds=-1
     )
-    eventList = calModule.get_events(
-        currDate,
+
+    events = calModule.get_events(
         cfg.ICS_URL,
         calStartDatetime,
         calEndDatetime,
         cfg.DISPLAY_TZ,
-        cfg.NUM_CAL_DATS_TO_SHOW,
+        cfg.NUM_CAL_DAYS_TO_QUERY,
     )
+    events_sorted = sorted(
+        events.items(), key=lambda x: x[0]
+    )  # sort by date so we can later take the first N days
 
     end_time = time.time()
     logger.info(
@@ -87,16 +83,13 @@ def get_image() -> FileResponse:
         start_time = time.time()
         logger.info(f"Generating image...")
 
-        renderService = RenderHelper(
-            cfg.IMAGE_WIDTH, cfg.IMAGE_HEIGHT, cfg.ROTATE_ANGLE
-        )
+        renderService = RenderHelper(cfg)
         renderService.process_inputs(
             currTime,
             current_weather,
             hourly_forecast,
             daily_forecast,
-            eventList,
-            cfg.NUM_CAL_DATS_TO_SHOW,
+            events_sorted[: cfg.NUM_DAYS_IN_TEMPLATE],
             tf.name,
         )
 

@@ -9,6 +9,7 @@ from __future__ import print_function
 import datetime as dt
 import sys
 
+import arrow
 import requests
 import structlog
 from ics import Calendar
@@ -35,20 +36,11 @@ class IcsHelper:
         else:
             return endTime
 
-    def is_multiday(self, start, end):
-        # check if event stretches across multiple days
-        return start.date() != end.date()
-
     def retrieve_events(self, ics_url, startDatetime, endDatetime, localTZ):
-        # Call the Google Calendar API and return a list of events that fall within the specified dates
+        # Call the ICS calendar and return a list of events that fall within the specified dates
         event_list = []
 
-        # TODO: Filter calendar events by time
-        min_time_str = startDatetime.isoformat()
-        max_time_str = endDatetime.isoformat()
-
         self.logger.info("Retrieving events from ICS...")
-
         response = requests.get(ics_url)
         if response.ok:
             cal = Calendar(response.text)
@@ -61,19 +53,23 @@ class IcsHelper:
         if not cal.events:
             self.logger.info("No upcoming calendar events found.")
         for event in cal.events:
-            # extracting and converting events data into a new list
-            new_event = {"summary": event.name}
-            new_event["allday"] = event.all_day
-            new_event["startDatetime"] = self.to_datetime(
-                event.begin.isoformat(), localTZ
-            )
-            new_event["endDatetime"] = self.adjust_end_time(
-                self.to_datetime(event.end.isoformat(), localTZ), localTZ
-            )
-            new_event["isMultiday"] = self.is_multiday(
-                new_event["startDatetime"], new_event["endDatetime"]
-            )
-            event_list.append(new_event)
+            if event.begin >= arrow.Arrow.fromdatetime(
+                startDatetime
+            ) and event.begin < arrow.Arrow.fromdatetime(endDatetime):
+                # extracting and converting events data into a new list
+                new_event = {"summary": event.name}
+                new_event["allday"] = event.all_day
+                new_event["startDatetime"] = self.to_datetime(
+                    event.begin.isoformat(), localTZ
+                )
+                new_event["endDatetime"] = self.adjust_end_time(
+                    self.to_datetime(event.end.isoformat(), localTZ), localTZ
+                )
+                new_event["isMultiday"] = (
+                    new_event["endDatetime"] - new_event["startDatetime"]
+                ) > dt.timedelta(days=1)
+                self.logger.debug(f"New event: {new_event}")
+                event_list.append(new_event)
 
         # We need to sort eventList because the event will be sorted in "calendar order" instead of hours order
         # TODO: improve because of double cycle for now is not much cost

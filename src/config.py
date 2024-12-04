@@ -21,13 +21,15 @@ class MagInkDashConfig:
         logger.error("OWM_API_KEY needs to be set.")
         sys.exit(1)
     DISPLAY_TZ: timezone = timezone(os.getenv("DISPLAY_TZ", "America/Los_Angeles"))
-    NUM_CAL_DATS_TO_SHOW: int = int(os.getenv("NUM_CAL_DATS_TO_SHOW", 5))
+    NUM_CAL_DAYS_TO_QUERY: int = int(os.getenv("NUM_CAL_DAYS_TO_QUERY", 30))
     IMAGE_WIDTH: int = int(os.getenv("IMAGE_WIDTH", 1200))
     IMAGE_HEIGHT: int = int(os.getenv("IMAGE_HEIGHT", 825))
-    ROTATE_ANGLE: int = int(os.getenv("ROTATE_ANGLE", 0))
     LAT: float = float(os.getenv("LAT", 34.118333))
     LNG: float = float(os.getenv("LNG", -118.300333))
     WEATHER_UNITS: WeatherUnits = WeatherUnits[os.getenv("WEATHER_UNITS", "metric")]
+    NUM_DAYS_IN_TEMPLATE: int = (
+        5  # Not configurable because it's hard-coded in the HTML template
+    )
 
     def get_config():
         global _current_config

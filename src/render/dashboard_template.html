@@ -67,7 +67,7 @@
                             </div>
                             <div class="row align-items-start ">
                                 <div class="col-md-12 text-center">
-                                    <h3>{tomorrow}<br />{tomorrow_weather_pop}% | {tomorrow_weather_min}-{tomorrow_weather_max}°</h3>
+                                    <h3>Tomorrow<br />{tomorrow_weather_pop}% | {tomorrow_weather_min}-{tomorrow_weather_max}°</h3>
                                 </div>
                             </div>
                         </div>
@@ -79,7 +79,7 @@
                             </div>
                             <div class="row align-items-start ">
                                 <div class="col-md-12 text-center">
-                                    <h3>{dayafter}<br />{dayafter_weather_pop}% | {dayafter_weather_min}-{dayafter_weather_max}°</h3>
+                                    <h3>{dayaftertomorrow}<br />{dayafter_weather_pop}% | {dayafter_weather_min}-{dayafter_weather_max}°</h3>
                                 </div>
                             </div>
                         </div>
@@ -103,17 +103,6 @@
                             <h2>Today</h2>
                             <ol class="list-unstyled">
                                 {events_today}
-                            </ol>
-                        </div>
-                    </div>
-                    <div class="row align-items-start ">
-                        <div class="col-md-12"  style="height: 10px"></div>
-                    </div>
-                    <div class="row align-items-start ">
-                        <div class="col-md-12">
-                            <h2>{tomorrow}</h2>
-                            <ol class="list-unstyled">
-                                {events_tomorrow}
                             </ol>
                         </div>
                     </div>
@@ -147,6 +136,17 @@
                             <h2>{dayafter3}</h2>
                             <ol class="list-unstyled">
                                 {events_dayafter3}
+                            </ol>
+                        </div>
+                    </div>
+                    <div class="row align-items-start ">
+                        <div class="col-md-12"  style="height: 10px"></div>
+                    </div>
+                    <div class="row align-items-start ">
+                        <div class="col-md-12">
+                            <h2>{dayafter4}</h2>
+                            <ol class="list-unstyled">
+                                {events_dayafter4}
                             </ol>
                         </div>
                     </div>
