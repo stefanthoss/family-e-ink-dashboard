@@ -41,7 +41,7 @@ class IcsModule:
                 numDays = (
                     event["endDatetime"].date() - event["startDatetime"].date()
                 ).days
-                for day in range(1, numDays + 1):
+                for day in range(0, numDays):
                     calDict.setdefault(
                         event["startDatetime"].date() + dt.timedelta(days=day), []
                     ).append(event)

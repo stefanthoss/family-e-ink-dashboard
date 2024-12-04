@@ -10,6 +10,7 @@ import datetime as dt
 import tempfile
 import time
 
+import pytz
 import structlog
 import uvicorn
 from fastapi import FastAPI
@@ -53,7 +54,7 @@ def get_image() -> FileResponse:
         cfg.LAT, cfg.LNG, cfg.OWM_API_KEY, cfg.WEATHER_UNITS
     )
 
-    currTime = dt.datetime.now(cfg.DISPLAY_TZ)
+    currTime = dt.datetime.now(pytz.timezone(cfg.DISPLAY_TZ))
     currDate = currTime.date()
     calStartDatetime = currTime.replace(hour=0, minute=0, second=0, microsecond=0)
     calEndDatetime = calStartDatetime + dt.timedelta(

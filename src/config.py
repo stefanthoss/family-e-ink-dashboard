@@ -2,7 +2,6 @@ import os
 import sys
 
 import structlog
-from pytz import timezone
 
 from owm.owm import WeatherUnits
 
@@ -20,7 +19,7 @@ class MagInkDashConfig:
     if not OWM_API_KEY:
         logger.error("OWM_API_KEY needs to be set.")
         sys.exit(1)
-    DISPLAY_TZ: timezone = timezone(os.getenv("DISPLAY_TZ", "America/Los_Angeles"))
+    DISPLAY_TZ: str = os.getenv("DISPLAY_TZ", "America/Los_Angeles")
     NUM_CAL_DAYS_TO_QUERY: int = int(os.getenv("NUM_CAL_DAYS_TO_QUERY", 30))
     IMAGE_WIDTH: int = int(os.getenv("IMAGE_WIDTH", 1200))
     IMAGE_HEIGHT: int = int(os.getenv("IMAGE_HEIGHT", 825))
