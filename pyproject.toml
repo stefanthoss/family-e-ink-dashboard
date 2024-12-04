@@ -20,8 +20,15 @@ uvicorn = "^0.32.1"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"
+flake8 = "^7.1.1"
 isort = "^5.13.2"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 100
+
+[tool.isort]
+profile = "black"
