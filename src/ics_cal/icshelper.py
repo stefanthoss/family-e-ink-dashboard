@@ -63,7 +63,6 @@ class IcsHelper:
                 new_event["isMultiday"] = (
                     new_event["endDatetime"] - new_event["startDatetime"]
                 ) > dt.timedelta(days=1)
-                self.logger.debug(f"Adding event: {new_event}")
                 event_list.append(new_event)
 
         # We need to sort eventList because the event will be sorted in "calendar order" instead of hours order
