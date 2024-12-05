@@ -7,9 +7,9 @@ format the calendar exactly the way I want it using HTML/CSS, and (ii) I can del
 calendar and refreshing of the eInk display.
 """
 
+import datetime as dt
 import pathlib
 import string
-from datetime import timedelta
 from time import sleep
 
 import structlog
@@ -108,7 +108,12 @@ class RenderHelper:
                         + event["summary"]
                     )
                 cal_events_text += "</div>\n"
-            cal_events_days.append(d.strftime("%A (%x)"))
+            if d == current_date:
+                cal_events_days.append("Today")
+            elif d == current_date + dt.timedelta(days=1):
+                cal_events_days.append("Tomorrow")
+            else:
+                cal_events_days.append(d.strftime("%A (%x)"))
             cal_events_list.append(cal_events_text)
 
         if len(cal_events_days) == 0:
@@ -126,16 +131,17 @@ class RenderHelper:
                 day=current_date.strftime("%-d"),
                 month=current_date.strftime("%B"),
                 weekday=current_date.strftime("%A"),
-                dayaftertomorrow=(current_date + timedelta(days=2)).strftime("%A"),
-                dayafter=cal_events_days[1],
-                dayafter2=cal_events_days[2],
-                dayafter3=cal_events_days[3],
-                dayafter4=cal_events_days[4],
-                events_today=cal_events_list[0],
-                events_dayafter=cal_events_list[1],
-                events_dayafter2=cal_events_list[2],
-                events_dayafter3=cal_events_list[3],
-                events_dayafter4=cal_events_list[4],
+                dayaftertomorrow=(current_date + dt.timedelta(days=2)).strftime("%A"),
+                cal_day_1=cal_events_days[0],
+                cal_day_2=cal_events_days[1],
+                cal_day_3=cal_events_days[2],
+                cal_day_4=cal_events_days[3],
+                cal_day_5=cal_events_days[4],
+                cal_day_1_events=cal_events_list[0],
+                cal_day_2_events=cal_events_list[1],
+                cal_day_3_events=cal_events_list[2],
+                cal_day_4_events=cal_events_list[3],
+                cal_day_5_events=cal_events_list[4],
                 # I'm choosing to show the forecast for the next hour instead of the current weather
                 current_weather_text=string.capwords(current_weather["weather"][0]["description"]),
                 current_weather_id=current_weather["weather"][0]["id"],
