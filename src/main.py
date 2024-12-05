@@ -6,6 +6,7 @@ As a dashboard, there are many other things that could be displayed, and it can 
 retrieve the information. So feel free to change up the code and amend it to your needs.
 """
 
+
 import datetime as dt
 import tempfile
 import time
@@ -55,11 +56,8 @@ def get_image() -> FileResponse:
     )
 
     currTime = dt.datetime.now(pytz.timezone(cfg.DISPLAY_TZ))
-    currDate = currTime.date()
     calStartDatetime = currTime.replace(hour=0, minute=0, second=0, microsecond=0)
-    calEndDatetime = calStartDatetime + dt.timedelta(
-        days=cfg.NUM_CAL_DAYS_TO_QUERY, seconds=-1
-    )
+    calEndDatetime = calStartDatetime + dt.timedelta(days=cfg.NUM_CAL_DAYS_TO_QUERY, seconds=-1)
 
     events = calModule.get_events(
         cfg.ICS_URL,
@@ -73,16 +71,12 @@ def get_image() -> FileResponse:
     )  # sort by date so we can later take the first N days
 
     end_time = time.time()
-    logger.info(
-        f"Completed data retrieval in {round(end_time - start_time, 3)} seconds."
-    )
+    logger.info(f"Completed data retrieval in {round(end_time - start_time, 3)} seconds.")
 
     # TODO: delete=False leads to accumulating temporary files in /tmp but is currently needed because the FileResponse is async.
-    with tempfile.NamedTemporaryFile(
-        suffix=".png", delete_on_close=False, delete=False
-    ) as tf:
+    with tempfile.NamedTemporaryFile(suffix=".png", delete_on_close=False, delete=False) as tf:
         start_time = time.time()
-        logger.info(f"Generating image...")
+        logger.info("Generating image...")
 
         renderService = RenderHelper(cfg)
         renderService.process_inputs(
@@ -103,7 +97,7 @@ def get_image() -> FileResponse:
 
 
 if __name__ == "__main__":
-    logger.info(f"Starting web server...")
+    logger.info("Starting web server...")
     config = uvicorn.Config(app, host="127.0.0.1", port=5000, log_level="debug")
     server = uvicorn.Server(config)
     server.run()

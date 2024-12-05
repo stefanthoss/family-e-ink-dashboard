@@ -28,9 +28,7 @@ class IcsHelper:
         if response.ok:
             cal = Calendar(response.text)
         else:
-            self.logger.error(
-                f"Received an error when downloading ICS: {response.text}"
-            )
+            self.logger.error(f"Received an error when downloading ICS: {response.text}")
             sys.exit(1)
 
         if not cal.events:

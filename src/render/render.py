@@ -13,7 +13,6 @@ from datetime import timedelta
 from time import sleep
 
 import structlog
-from PIL import Image
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -36,12 +35,8 @@ class RenderHelper:
         inner_height = int(html.get_attribute("clientHeight"))
 
         # "Internal width you want to set+Set "outer frame width" to window size
-        target_width = self.cfg.IMAGE_WIDTH + (
-            current_window_size["width"] - inner_width
-        )
-        target_height = self.cfg.IMAGE_HEIGHT + (
-            current_window_size["height"] - inner_height
-        )
+        target_width = self.cfg.IMAGE_WIDTH + (current_window_size["width"] - inner_width)
+        target_height = self.cfg.IMAGE_HEIGHT + (current_window_size["height"] - inner_height)
 
         driver.set_window_rect(width=target_width, height=target_height)
 
@@ -60,9 +55,7 @@ class RenderHelper:
         sleep(1)
         driver.get_screenshot_as_file(self.currPath + "/dashboard.png")
         driver.get_screenshot_as_file(path_to_server_image)
-        self.logger.debug(
-            f"Screenshot captured and saved to file {path_to_server_image}."
-        )
+        self.logger.debug(f"Screenshot captured and saved to file {path_to_server_image}.")
         driver.close()
 
     def get_short_time(self, datetimeObj, is24hour=False):
@@ -120,9 +113,7 @@ class RenderHelper:
 
         if len(cal_events_days) == 0:
             cal_events_days.append("Today")
-            cal_events_list.append(
-                '<div class="event"><span class="event-time">None</span></div>'
-            )
+            cal_events_list.append('<div class="event"><span class="event-time">None</span></div>')
 
         self.extend_list(cal_events_days, self.cfg.NUM_DAYS_IN_TEMPLATE, "")
         self.extend_list(cal_events_list, self.cfg.NUM_DAYS_IN_TEMPLATE, "")
@@ -146,9 +137,7 @@ class RenderHelper:
                 events_dayafter3=cal_events_list[3],
                 events_dayafter4=cal_events_list[4],
                 # I'm choosing to show the forecast for the next hour instead of the current weather
-                current_weather_text=string.capwords(
-                    current_weather["weather"][0]["description"]
-                ),
+                current_weather_text=string.capwords(current_weather["weather"][0]["description"]),
                 current_weather_id=current_weather["weather"][0]["id"],
                 current_weather_temp=round(current_weather["temp"]),
                 today_weather_id=daily_forecast[0]["weather"][0]["id"],
