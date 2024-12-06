@@ -34,18 +34,17 @@ h1, h2, p, span, .h1, .h2, .p, .span  {
     max-width: 95%;
     font-family: "Lexend-Regular", sans-serif;
     font-size: 2.5rem;
-    display: list-item;          /* This has to be "list-item"                                               */
-    list-style-type: disc;     /* See https://developer.mozilla.org/en-US/docs/Web/CSS/list-style-type     */
+    display: list-item;  /* This has to be "list-item" */
+    list-style-type: disc;  /* See https://developer.mozilla.org/en-US/docs/Web/CSS/list-style-type */
     list-style-position: inside;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.did-you-know {
+.info-bar {
     font-family: "Lexend-Light", sans-serif;
-    font-size: 2.5rem;
-    max-width: 95%;
+    font-size: 1.5rem;
 }
 
 .date-padding {
