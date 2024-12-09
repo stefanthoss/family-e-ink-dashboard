@@ -109,9 +109,7 @@ class RenderHelper:
                     )
                     if "location" in event:
                         cal_events_text += (
-                            '<span class="event-location"> at '
-                            + event["location"]
-                            + "</span>"
+                            '<span class="event-location"> at ' + event["location"] + "</span>"
                         )
                 cal_events_text += "</div>\n"
             if d == current_date:

@@ -46,6 +46,4 @@ class IcsModule:
             else:
                 calDict.setdefault(event["startDatetime"].date(), []).append(event)
 
-        return sorted(
-            calDict.items(), key=lambda x: x[0]
-        )
+        return sorted(calDict.items(), key=lambda x: x[0])
