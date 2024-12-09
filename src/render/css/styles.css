@@ -21,10 +21,6 @@ h1, h2, h3, p, span {
     text-overflow: ellipsis;
 }
 
-.event-time {
-    color: gray
-}
-
 .big-day {
     font-family: "TiltWarp-Regular", sans-serif;
     font-size: 18rem;
@@ -40,6 +36,10 @@ h1, h2, h3, p, span {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.event-time, .event-location {
+    color: gray
 }
 
 .weather-forecast {
