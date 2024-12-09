@@ -13,7 +13,7 @@
     src: url('../font/TiltWarp-Regular.ttf');
 }
 
-h1, h2, p, span, .h1, .h2, .p, .span  {
+h1, h2, h3, p, span {
     font-family: "Lexend-Regular", sans-serif;
 }
 
@@ -40,6 +40,11 @@ h1, h2, p, span, .h1, .h2, .p, .span  {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.weather-forecast {
+    font-family: "Lexend-Regular", sans-serif;
+    font-size: 2rem;
 }
 
 .info-bar {
