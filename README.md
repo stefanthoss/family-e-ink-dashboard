@@ -4,7 +4,7 @@
 
 This repo contains the code needed to drive an E-Ink Magic Dashboard that uses a Docker container on a different host to automatically retrieve updated content from an ICS calendar and OpenWeatherMap, format them into the desired layout, before serving it to a battery powered E-Ink display (Inkplate 10). Note that the code has only been tested on the specific hardware mentioned, but can be easily modified to work with other hardware (for both the server or display).
 
-![20230412_214635](https://user-images.githubusercontent.com/5581989/231482915-154db674-9301-465d-8352-d2c4400093eb.JPG)
+![Dashboard Example](docs/dashboard-example.png)
 
 ## Background
 
@@ -13,6 +13,7 @@ I liked the premise of [MagInkDash](https://github.com/speedyg0nz/MagInkDash) bu
 ## Hardware Required
 
 * A machine that supports Docker - Used as a server to retrieve content and generate a dashboard for the E-Ink display. Just needs to have [Docker](https://docs.docker.com/get-started/get-docker/) and [Docker Compose](https://docs.docker.com/compose/) installed so any old machine or SBC would do. I would recommend that this container is not exposed to the public Internet since it shows your calendar information without authentication.
+
 * [Inkplate 10 Battery Powered E-Ink Display](https://soldered.com/product/soldered-inkplate-10-9-7-e-paper-board-with-enclosure-copy/) - Used as a client to display the generated dashboard. I went with this because it was an all-in-one with the enclosure and battery included so there's less hardware tinkering. But you could certainly go barebones and assemble the different parts yourself from scratch, i.e. display, microcontroller, case, and battery.
 
 ## How It Works
@@ -22,16 +23,16 @@ On the backend, a Python API based on Docker and FastAPI is serving the image wi
 On the Inkplate 10, a script will then connect to the server on the local network via a WiFi connection, retrieve the image and display it on the E-Ink screen. The Inkplate 10 then goes to sleep to conserve battery. The dashboard remains displayed on the E-Ink screen, because well, E-Ink...
 
 Some features of the dashboard: 
-- **Battery Life**: As with similar battery powered devices, the biggest question is the battery life. I'm currently using a 1500mAh battery on the Inkplate 10 and based on current usage, it should last me around 3-4 months. With the 3000mAh that comes with the manufacturer assembled Inkplate 10, we could potentially be looking at 6-8 month battery life. With this crazy battery life, there are much more options available. Perhaps solar power for unlimited battery life? Or reducing the refresh interval to 15 or 30min to increase the information timeliness?
-- **Calendar and Weather**: I'm currently displaying calendar events and weather forecast for current day and the upcoming two days. No real reason other than the desire to know what my weekend looks like on a Friday, and therefore helping me to better plan my weekend. Unfortunately, if you have a busy calendar with numerous events on a single day, the space on the dashboard will be consumed very quickly. If so, you might wish to modify the code to reduce/limit the number of days/events to be displayed.
 
-![MagInkDash Features](https://user-images.githubusercontent.com/5581989/231484018-6ff6a883-3226-42c7-a387-fcef7ee9d49c.png)
+* **Battery Life**: As with similar battery powered devices, the biggest question is the battery life. I'm currently using a 1500mAh battery on the Inkplate 10 and based on current usage, it should last me around 3-4 months. With the 3000mAh that comes with the manufacturer assembled Inkplate 10, we could potentially be looking at 6-8 month battery life. With this crazy battery life, there are much more options available. Perhaps solar power for unlimited battery life? Or reducing the refresh interval to 15 or 30min to increase the information timeliness?
+
+* **Calendar and Weather**: I'm currently displaying calendar events and weather forecast for current day and the upcoming two days. No real reason other than the desire to know what my weekend looks like on a Friday, and therefore helping me to better plan my weekend. Unfortunately, if you have a busy calendar with numerous events on a single day, the space on the dashboard will be consumed very quickly. If so, you might wish to modify the code to reduce/limit the number of days/events to be displayed.
 
 ## Setting Up 
 
 1. On the server host, make sure that `docker` and `docker compose` are installed.
 
-2. Download the `docker-compose.yml` file from this repo and adjust the environment variables, see the section **Config Reference** below.
+2. Download the `docker-compose.yml` file from this repo and adjust the environment variables, see the section **Config Reference** below. If you are not sure how to get the ICS URL, refer to **How to get the ICS URL** below.
 
 3. Start up the server with `docker compose up -d`. You can check the logs with `docker compose logs -f` and ensure that there are no errors.
 
@@ -41,9 +42,21 @@ Some features of the dashboard:
 
 6. That's all! Your Magic Dashboard should now be refreshed every hour! 
 
-![20230412_214652](https://user-images.githubusercontent.com/5581989/231485348-35d7e0df-034e-49aa-8500-223b2b3bdcc0.JPG)
-![20230412_215020](https://user-images.githubusercontent.com/5581989/231484068-aa6ce877-1e0a-49fe-b47e-7c024752f42c.JPG)
-Selfie and family portrait together with the MagInkCal
+## How to get the ICS URL
+
+MagInkDashPlus supports any standard ICS feed, here are a few popular calendars and how you can get the ICS feed URL. These instructions might change and are up-to-date as of December 2024.
+
+### Google Calendar
+
+Go to the calendar you want to display, click `Settings and sharing`, and copy the `Secret address in iCal format`.
+
+### Proton Calendar
+
+Go to the calendar you want to display, click `Share`, then `Share with anyone`, then `Full view (see all event details)`, click `Create`, and copy the link.
+
+### Nextcloud
+
+Go to the calendar you want to display, click the edit icon, create a share link, and `Copy subscription link`.
 
 ## Config Reference
 
