@@ -67,4 +67,4 @@ class IcsHelper:
 
                 event_list.append(new_event)
 
-        return event_list
+        return sorted(event_list, key=lambda k: k["startDatetime"])
