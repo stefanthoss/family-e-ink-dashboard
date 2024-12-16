@@ -24,7 +24,7 @@ from render.render import RenderHelper
 
 cfg = MagInkDashConfig.get_config()
 
-app = FastAPI(title="MagInkDashPlus Server", version="0.4.1")
+app = FastAPI(title="MagInkDashPlus Server", version="0.5.0")
 
 logger = structlog.get_logger()
 

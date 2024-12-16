@@ -1,7 +1,8 @@
 /*
-  Adapted from the Inkplate10_Image_Frame_From_Web example for Soldered Inkplate 10
+  Adapted from the Inkplate10 examples
   https://github.com/SolderedElectronics/Inkplate-Arduino-library/blob/2dd263f2f9548aadac8638413a143beddf068a64/examples/Inkplate10/Projects/Inkplate10_Image_Frame_From_Web/Inkplate10_Image_Frame_From_Web.ino and
-  https://github.com/SolderedElectronics/Inkplate-Arduino-library/blob/2dd263f2f9548aadac8638413a143beddf068a64/examples/Inkplate10/Advanced/Other/Inkplate10_Read_Battery_Voltage/Inkplate10_Read_Battery_Voltage.ino
+  https://github.com/SolderedElectronics/Inkplate-Arduino-library/blob/2dd263f2f9548aadac8638413a143beddf068a64/examples/Inkplate10/Advanced/Other/Inkplate10_Read_Battery_Voltage/Inkplate10_Read_Battery_Voltage.ino and
+  https://github.com/SolderedElectronics/Inkplate-Arduino-library/blob/2dd263f2f9548aadac8638413a143beddf068a64/examples/Inkplate10/Advanced/DeepSleep/Inkplate10_Wake_Up_Button/Inkplate10_Wake_Up_Button.ino
 
   What this code does:
     1. Connect to a WiFi access point
@@ -36,6 +37,29 @@ void setup()
     // Join wifi
     display.connectWiFi(ssid, password);
 
+    displayInfo();
+
+    // Go to sleep for 60min (60min * 60s * 1000ms * 1000us)
+    esp_sleep_enable_timer_wakeup(60ll * 60 * 1000 * 1000);
+
+    // Enable wakeup from deep sleep on gpio 36 (wake button)
+    esp_sleep_enable_ext0_wakeup(GPIO_NUM_36, LOW);
+
+    // Go to sleep
+    esp_deep_sleep_start();
+}
+
+void loop()
+{
+    // Never here! If you use deep sleep, the whole program should be in setup() because the board restarts each
+    // time. loop() must be empty!
+}
+
+void displayInfo()
+{
+    // First, lets delete everything from frame buffer
+    display.clearDisplay();
+
     // Display image from API
     if (!display.drawImage(imgurl, display.PNG, 0, 0))
     {
@@ -55,16 +79,6 @@ void setup()
     }
 
     display.display();  // Send everything to display (refresh the screen)
-
-    Serial.println("Going to sleep");
-    delay(100);
-    esp_sleep_enable_timer_wakeup(60ll * 60 * 1000 * 1000);  // Wake up in 60min time - 60min * 60s * 1000ms * 1000us
-    esp_deep_sleep_start();
-}
-
-void loop()
-{
-    // Never here, as deepsleep restarts esp32
 }
 
 
