@@ -117,7 +117,7 @@ class RenderHelper:
             elif d == current_date + dt.timedelta(days=1):
                 cal_events_days.append("Tomorrow")
             else:
-                cal_events_days.append(d.strftime("%A (%x)"))
+                cal_events_days.append(d.strftime("%A (%B %-d)"))
             cal_events_list.append(cal_events_text)
 
         if len(cal_events_days) == 0:
