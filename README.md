@@ -32,7 +32,7 @@ Some features of the dashboard:
 
 1. On the server host, make sure that `docker` and `docker compose` are installed.
 
-2. Download the `docker-compose.yml` file from this repo and adjust the environment variables, see the section **Config Reference** below. If you are not sure how to get the ICS URL, refer to **How to get the ICS URL** below.
+2. Download the `docker-compose.yml` file from this repo and adjust the environment variables, see the section **Config Reference** below. If you are not sure how to get the ICS URL, refer to **How to get the ICS URL** below. You will also need to sign up for a [OpenWeather One Call API 3.0 key](https://openweathermap.org/api/one-call-3) which needs an account but is free for 1000 calls/day.
 
 3. Start up the server with `docker compose up -d`. You can check the logs with `docker compose logs -f` and ensure that there are no errors.
 
@@ -65,10 +65,10 @@ These are the config variables you can configure in the `environment` section of
 Variable | Required | Default | Description
 --- | --- | --- | ---
 ICS_URL | Yes | | URL of the ICS calendar feed
-OWM_API_KEY | Yes | | OpenWeatherMap API key to retrieve weather forecast
+OWM_API_KEY | Yes | | [OpenWeatherMap API key](https://openweathermap.org/api/one-call-3) to retrieve weather forecast
+LAT | Yes | | Latitude in decimal for the weather forecast location
+LNG | Yes | | Longitude in decimal for the weather forecast location
 DISPLAY_TZ | No | America/Los_Angeles | Time zone for displaying the calendar
-LAT | No | 34.118333 | Latitude in decimal of the location to retrieve weather forecast for
-LNG | No | -118.300333 | Longitude in decimal of the location to retrieve weather forecast for
 WEATHER_UNITS | No | metric | Units of measurement for the temperature, `metric` and `imperial` units are available
 NUM_CAL_DAYS_TO_QUERY | No | 30 | Number of days to query from the calendar
 IMAGE_WIDTH | No | 1200 | Width of image to be generated for display
