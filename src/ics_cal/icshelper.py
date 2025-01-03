@@ -19,7 +19,7 @@ class IcsHelper:
     def __init__(self):
         self.logger = structlog.get_logger()
 
-    def retrieve_events(self, ics_url, startDatetime, endDatetime, localTZ):
+    def retrieve_events(self, ics_url, calStartDatetime, calEndDatetime, localTZ):
         # Call the ICS calendar and return a list of events that fall within the specified dates
         event_list = []
 
@@ -63,9 +63,12 @@ class IcsHelper:
             ) > dt.timedelta(days=1)
 
             if (
-                new_event["startDatetime"] >= startDatetime
-                and new_event["startDatetime"] < endDatetime
+                new_event["endDatetime"] >= calStartDatetime
+                and new_event["startDatetime"] < calEndDatetime
             ):
+                # Don't show past days for ongoing multiday event
+                new_event["startDatetime"] = max(new_event["startDatetime"], calStartDatetime)
+
                 event_list.append(new_event)
 
         return sorted(event_list, key=lambda k: k["startDatetime"])
