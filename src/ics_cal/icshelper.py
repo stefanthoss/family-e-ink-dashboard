@@ -9,7 +9,6 @@ from __future__ import print_function
 import datetime as dt
 import sys
 
-import arrow
 import requests
 import structlog
 from ics import Calendar
