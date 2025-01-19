@@ -84,7 +84,7 @@ class RenderHelper:
         daily_forecast,
         events,
         path_to_server_image,
-        show_additional_weather
+        show_additional_weather,
     ):
         # Read html template
         with open(self.currPath + "/dashboard_template.html", "r") as file:
@@ -123,7 +123,9 @@ class RenderHelper:
 
         if len(cal_events_days) == 0:
             cal_events_days.append("Next Days")
-            cal_events_list.append('<div class="event"><span class="event-time">No Events</span></div>')
+            cal_events_list.append(
+                '<div class="event"><span class="event-time">No Events</span></div>'
+            )
 
         self.extend_list(cal_events_days, self.cfg.NUM_DAYS_IN_TEMPLATE, "")
         self.extend_list(cal_events_list, self.cfg.NUM_DAYS_IN_TEMPLATE, "")
@@ -131,8 +133,8 @@ class RenderHelper:
         weather_add_info = ""
         if show_additional_weather:
             if round(current_weather["temp"]) != round(current_weather["feels_like"]):
-                weather_add_info = f"Feels Like {round(current_weather["feels_like"])}° | "
-            weather_add_info += f"UV Index {round(current_weather["uvi"])}"
+                weather_add_info = f'Feels Like {round(current_weather["feels_like"])}° | '
+            weather_add_info += f'UV Index {round(current_weather["uvi"])}'
 
         # Append the bottom and write the file
         htmlFile = open(self.currPath + "/dashboard.html", "w")
@@ -158,7 +160,7 @@ class RenderHelper:
                 # I'm choosing to show the forecast for the next hour instead of the current weather
                 current_weather_text=string.capwords(current_weather["weather"][0]["description"]),
                 current_weather_id=current_weather["weather"][0]["id"],
-                current_weather_temp=f"{round(current_weather["temp"])}°",
+                current_weather_temp=f'{round(current_weather["temp"])}°',
                 current_weather_add_info=weather_add_info,
                 today_weather_id=daily_forecast[0]["weather"][0]["id"],
                 tomorrow_weather_id=daily_forecast[1]["weather"][0]["id"],
