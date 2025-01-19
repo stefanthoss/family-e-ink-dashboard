@@ -23,7 +23,7 @@ h1, h2, h3, p, span {
 
 .big-day {
     font-family: "TiltWarp-Regular", sans-serif;
-    font-size: 18rem;
+    font-size: 16rem;
 }
 
 .event {
@@ -49,7 +49,7 @@ h1, h2, h3, p, span {
 
 .info-bar {
     font-family: "Lexend-Light", sans-serif;
-    font-size: 1.5rem;
+    font-size: 1.3rem;
 }
 
 .date-padding {
