@@ -133,8 +133,11 @@ class RenderHelper:
         weather_add_info = ""
         if show_additional_weather:
             if round(current_weather["temp"]) != round(current_weather["feels_like"]):
-                weather_add_info = f'Feels Like {round(current_weather["feels_like"])}° | '
-            weather_add_info += f'UV Index {round(current_weather["uvi"])}'
+                weather_add_info = f'Feels Like {round(current_weather["feels_like"])}°'
+            if (current_weather["sunrise"] < current_weather["dt"]) and (current_weather["dt"] < current_weather["sunset"]):
+                if weather_add_info != "":
+                    weather_add_info += " | "
+                weather_add_info += f'UV Index {round(current_weather["uvi"])}'
 
         # Append the bottom and write the file
         htmlFile = open(self.currPath + "/dashboard.html", "w")
