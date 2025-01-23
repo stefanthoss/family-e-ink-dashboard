@@ -30,7 +30,8 @@ class MagInkDashConfig:
     IMAGE_WIDTH: int = int(os.getenv("IMAGE_WIDTH", 1200))
     IMAGE_HEIGHT: int = int(os.getenv("IMAGE_HEIGHT", 825))
     WEATHER_UNITS: WeatherUnits = WeatherUnits[os.getenv("WEATHER_UNITS", "metric")]
-    NUM_DAYS_IN_TEMPLATE: int = 5  # Not configurable because it's hard-coded in the HTML template
+    SHOW_ADDITIONAL_WEATHER: bool = bool(os.getenv("SHOW_ADDITIONAL_WEATHER", False))
+    NUM_DAYS_IN_TEMPLATE: int = 6  # Not configurable because it's hard-coded in the HTML template
 
     def get_config():
         global _current_config

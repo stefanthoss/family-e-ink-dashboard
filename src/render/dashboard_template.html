@@ -22,7 +22,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6 date-padding">
-                                    <div class="col-md-12"  style="height: 130px"></div>
+                                    <div class="col-md-12"  style="height: 110px"></div>
                                     <div>
                                         <p style="font-size: 2.5rem">{weekday}<br />{month}</p>
                                     </div>
@@ -40,7 +40,8 @@
                     </div>
                     <div class="row align-items-start ">
                         <div class="col-md-12 text-center">
-                            <h2>{current_weather_text} | {current_weather_temp}°</h2>
+                            <h2>{current_weather_text} | {current_weather_temp}</h2>
+                            <div class="weather-forecast">{current_weather_add_info}</div>
                         </div>
                     </div>
                     <div class="row align-items-start ">
@@ -150,6 +151,17 @@
                             <h2>{cal_day_5}</h2>
                             <ol class="list-unstyled">
                                 {cal_day_5_events}
+                            </ol>
+                        </div>
+                    </div>
+                    <div class="row align-items-start ">
+                        <div class="col-md-12"  style="height: 10px"></div>
+                    </div>
+                    <div class="row align-items-start ">
+                        <div class="col-md-12">
+                            <h2>{cal_day_6}</h2>
+                            <ol class="list-unstyled">
+                                {cal_day_6_events}
                             </ol>
                         </div>
                     </div>

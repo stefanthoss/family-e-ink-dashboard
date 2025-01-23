@@ -73,6 +73,7 @@ WEATHER_UNITS | No | metric | Units of measurement for the temperature, `metric`
 NUM_CAL_DAYS_TO_QUERY | No | 30 | Number of days to query from the calendar
 IMAGE_WIDTH | No | 1200 | Width of image to be generated for display
 IMAGE_HEIGHT | No | 825 | Height of image to be generated for display
+SHOW_ADDITIONAL_WEATHER | No | False | Whether to show "Feels Like" temperature and UV index for the next hour
 
 ## Development
 
