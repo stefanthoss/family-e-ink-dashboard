@@ -40,6 +40,7 @@ void setup()
     display.clearDisplay();      // Clear frame buffer of display
     display.setTextSize(2);      // Set text size to be 2 times bigger than original (5x7 px)
     display.setTextColor(BLACK); // Set text color to black
+    display.setCursor(25, 25);
 
     // Show a connection message
     display.print("Connecting to WiFi");
@@ -54,7 +55,10 @@ void setup()
         display.print(".");
         display.partialUpdate();
     }
-    display.println("\nWiFi OK! Downloading...");
+    display.print(" Successful.");
+    display.partialUpdate();
+    display.setCursor(25, 50);
+    display.print("Downloading image...");
     display.partialUpdate();
 
     // Switch to 3-bit mode so the image will be of better quality
@@ -118,15 +122,15 @@ void setup()
         else
         {
             // Show an error message
-            display.setCursor(5, 5);
-            display.println("Invalid response length " + String(size) + " (HTTP " + String(httpCode) + ")");
+            display.setCursor(25, 75);
+            display.print("Invalid response length " + String(size) + " (HTTP " + String(httpCode) + ")");
         }
     }
     else
     {
         // Show an error message
-        display.setCursor(5, 5);
-        display.println("HTTP error " + String(httpCode));
+        display.setCursor(25, 75);
+        display.print("HTTP error " + String(httpCode));
     }
 
     // Show battery percentage if low
