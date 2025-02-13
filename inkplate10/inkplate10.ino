@@ -25,7 +25,7 @@
 
 char *ssid = "YOUR WIFI SSID";  // Your WiFi SSID
 char *pass = "YOUR WIFI PASSWORD";  // Your WiFi password
-String imgurl = "https://url.to.your.server/image";  // Your dashboard image web address
+String imgurl = "https://url-to-your-server/image";  // Your dashboard image web address
 
 #define BATTV_MAX 4.1  // maximum voltage of battery
 #define BATTV_MIN 3.2  // what we regard as an empty battery
@@ -66,7 +66,7 @@ void setup()
 
     // Make an object for the HTTP client
     HTTPClient http;
-    http.setTimeout(5000);
+    http.setTimeout(10000);
     http.begin(imgurl);
 
     int httpCode = http.GET();
@@ -122,14 +122,14 @@ void setup()
         else
         {
             // Show an error message
-            display.setCursor(25, 75);
+            display.setCursor(25, 25);
             display.print("Invalid response length " + String(size) + " (HTTP " + String(httpCode) + ")");
         }
     }
     else
     {
         // Show an error message
-        display.setCursor(25, 75);
+        display.setCursor(25, 25);
         display.print("HTTP error " + String(httpCode));
     }
 
