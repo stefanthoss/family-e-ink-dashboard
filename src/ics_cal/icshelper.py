@@ -47,7 +47,7 @@ class IcsHelper:
                 )
                 new_event["endDatetime"] = dt.datetime.fromisoformat(
                     event.end.replace(tzinfo=localTZ).isoformat()
-                )
+                ) - dt.timedelta(minutes=1)
             else:
                 # Other events need to be translated to local timezone
                 new_event["startDatetime"] = dt.datetime.fromisoformat(
