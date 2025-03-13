@@ -179,6 +179,7 @@ class RenderHelper:
                 today_weather_max=str(round(daily_forecast[0]["temp"]["max"])),
                 tomorrow_weather_max=str(round(daily_forecast[1]["temp"]["max"])),
                 dayafter_weather_max=str(round(daily_forecast[2]["temp"]["max"])),
+                today_moon_phase=self.wi_moon_phase(daily_forecast[0]["moon_phase"]),
             )
         )
         htmlFile.close()
@@ -187,3 +188,30 @@ class RenderHelper:
 
     def extend_list(self, my_list, new_length, default_value):
         return my_list.extend([default_value] * (new_length - len(my_list)))
+
+    def wi_moon_phase(self, value):
+        """
+        This function translates a number representing the phase of the moon as returned by the
+        OpenWeatherMap API into the equivalent Weather Icon name. The input value should be between
+        0 and 1, inclusive, where 0 and 1 represents a new moon, 0.25 represents a first quarter
+        moon, 0.5 represents a full moon, and 0.75 represents a last quarter moon.
+        """
+
+        phases = {
+            0.0: 'wi-moon-new',
+            0.25: 'wi-moon-first-quarter',
+            0.5: 'wi-moon-full',
+            0.75: 'wi-moon-third-quarter',
+            1.0: 'wi-moon-new',
+        }
+
+        if value in phases:
+            return phases[value]
+        elif value < 0.25:
+            return f"wi-moon-waxing-crescent-{int(6 * value / 0.25)}"
+        elif value < 0.5:
+            return f"wi-moon-waxing-gibbous-{int((value - 0.25) * 6 / 0.25 + 1)}"
+        elif value < 0.75:
+            return f"wi-moon-waning-gibbous-{int((value - 0.5) * 6 / 0.25 + 1)}"
+        else:
+            return f"wi-moon-waning-crescent-{int((value - 0.75) * 6 / 0.25 + 1)}"
