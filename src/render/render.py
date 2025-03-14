@@ -140,11 +140,9 @@ class RenderHelper:
                     weather_add_info += " | "
                 weather_add_info += f'UV Index {round(current_weather["uvi"])}'
 
-        today_moon_phase = "&nbsp;"
+        today_moon_phase = ""
         if self.cfg.SHOW_MOON_PHASE:
-            today_moon_phase = (
-                f"<i class=\"wi {self.wi_moon_phase(daily_forecast[0]['moon_phase'])}\"></i>"
-            )
+            today_moon_phase = self.wi_moon_phase(daily_forecast[0]['moon_phase'])
 
         # Append the bottom and write the file
         htmlFile = open(self.currPath + "/dashboard.html", "w")
