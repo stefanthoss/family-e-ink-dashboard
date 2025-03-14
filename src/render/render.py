@@ -84,7 +84,6 @@ class RenderHelper:
         daily_forecast,
         events,
         path_to_server_image,
-        show_additional_weather,
     ):
         # Read html template
         with open(self.currPath + "/dashboard_template.html", "r") as file:
@@ -130,8 +129,8 @@ class RenderHelper:
         self.extend_list(cal_events_days, self.cfg.NUM_DAYS_IN_TEMPLATE, "")
         self.extend_list(cal_events_list, self.cfg.NUM_DAYS_IN_TEMPLATE, "")
 
-        weather_add_info = ""
-        if show_additional_weather:
+        weather_add_info = "&nbsp;"
+        if self.cfg.SHOW_ADDITIONAL_WEATHER:
             if round(current_weather["temp"]) != round(current_weather["feels_like"]):
                 weather_add_info = f'Feels Like {round(current_weather["feels_like"])}°'
             if (current_weather["sunrise"] < current_weather["dt"]) and (
@@ -140,6 +139,12 @@ class RenderHelper:
                 if weather_add_info != "":
                     weather_add_info += " | "
                 weather_add_info += f'UV Index {round(current_weather["uvi"])}'
+
+        today_moon_phase = "&nbsp;"
+        if self.cfg.SHOW_MOON_PHASE:
+            today_moon_phase = (
+                f"<i class=\"wi {self.wi_moon_phase(daily_forecast[0]['moon_phase'])}\"></i>"
+            )
 
         # Append the bottom and write the file
         htmlFile = open(self.currPath + "/dashboard.html", "w")
@@ -179,7 +184,7 @@ class RenderHelper:
                 today_weather_max=str(round(daily_forecast[0]["temp"]["max"])),
                 tomorrow_weather_max=str(round(daily_forecast[1]["temp"]["max"])),
                 dayafter_weather_max=str(round(daily_forecast[2]["temp"]["max"])),
-                today_moon_phase=self.wi_moon_phase(daily_forecast[0]["moon_phase"]),
+                today_moon_phase=today_moon_phase,
             )
         )
         htmlFile.close()
@@ -198,11 +203,11 @@ class RenderHelper:
         """
 
         phases = {
-            0.0: 'wi-moon-new',
-            0.25: 'wi-moon-first-quarter',
-            0.5: 'wi-moon-full',
-            0.75: 'wi-moon-third-quarter',
-            1.0: 'wi-moon-new',
+            0.0: "wi-moon-new",
+            0.25: "wi-moon-first-quarter",
+            0.5: "wi-moon-full",
+            0.75: "wi-moon-third-quarter",
+            1.0: "wi-moon-new",
         }
 
         if value in phases:
