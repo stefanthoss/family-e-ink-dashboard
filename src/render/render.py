@@ -131,18 +131,18 @@ class RenderHelper:
 
         weather_add_info = "&nbsp;"
         if self.cfg.SHOW_ADDITIONAL_WEATHER:
+            additional_infos = []
             if round(current_weather["temp"]) != round(current_weather["feels_like"]):
-                weather_add_info = f'Feels Like {round(current_weather["feels_like"])}°'
+                additional_infos.append(f'Feels Like {round(current_weather["feels_like"])}°')
             if (current_weather["sunrise"] < current_weather["dt"]) and (
                 current_weather["dt"] < current_weather["sunset"]
             ):
-                if weather_add_info != "":
-                    weather_add_info += " | "
-                weather_add_info += f'UV Index {round(current_weather["uvi"])}'
+                additional_infos.append(f'UV Index {round(current_weather["uvi"])}')
+            weather_add_info = " | ".join(additional_infos)
 
         today_moon_phase = ""
         if self.cfg.SHOW_MOON_PHASE:
-            today_moon_phase = self.wi_moon_phase(daily_forecast[0]['moon_phase'])
+            today_moon_phase = self.wi_moon_phase(daily_forecast[0]["moon_phase"])
 
         # Append the bottom and write the file
         htmlFile = open(self.currPath + "/dashboard.html", "w")
