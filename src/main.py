@@ -6,7 +6,6 @@ As a dashboard, there are many other things that could be displayed, and it can 
 retrieve the information. So feel free to change up the code and amend it to your needs.
 """
 
-
 import datetime as dt
 import tempfile
 import time
