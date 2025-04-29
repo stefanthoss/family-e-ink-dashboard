@@ -1,20 +1,19 @@
 """
 This script essentially generates a HTML file of the calendar I wish to display. It then fires up a headless Chrome
 instance, sized to the resolution of the eInk display and takes a screenshot.
-
-This might sound like a convoluted way to generate the calendar, but I'm doing so mainly because (i) it's easier to
-format the calendar exactly the way I want it using HTML/CSS, and (ii) I can delink the generation of the
-calendar and refreshing of the eInk display.
 """
 
 import datetime as dt
+import os
 import pathlib
 import string
+import subprocess
 from time import sleep
 
 import structlog
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 
 
@@ -49,14 +48,49 @@ class RenderHelper:
         opts.add_argument("--headless")
         opts.add_argument("--hide-scrollbars")
         opts.add_argument("--no-sandbox")
-        driver = webdriver.Chrome(options=opts)
-        self.set_viewport_size(driver)
-        driver.get(self.htmlFile)
-        sleep(1)
-        driver.get_screenshot_as_file(self.currPath + "/dashboard.png")
-        driver.get_screenshot_as_file(path_to_server_image)
-        self.logger.debug(f"Screenshot captured and saved to file {path_to_server_image}.")
-        driver.close()
+
+        # Try to automatically locate chromedriver, source: https://github.com/fdmarcin/MagInkDash-updated
+        try:
+            chromedriver_path = (
+                subprocess.check_output(["which", "chromedriver"]).decode("utf-8").strip()
+            )
+            self.logger.info(f"Found chromedriver at: {chromedriver_path}")
+        except (subprocess.SubprocessError, FileNotFoundError):
+            # Default paths to try if 'which' command fails
+            possible_paths = [
+                "/usr/bin/chromedriver",
+                "/usr/local/bin/chromedriver",
+                "/usr/lib/chromium-browser/chromedriver",
+            ]
+
+            chromedriver_path = None
+            for path in possible_paths:
+                if os.path.exists(path) and os.access(path, os.X_OK):
+                    chromedriver_path = path
+                    self.logger.info(f"Found chromedriver at default location: {chromedriver_path}")
+                    break
+
+            if not chromedriver_path:
+                self.logger.error(
+                    "Could not find chromedriver. Please install it with 'sudo apt-get install chromium-chromedriver'"
+                )
+                raise FileNotFoundError("chromedriver executable not found in PATH")
+
+        # Use the discovered chromedriver path
+        service = Service(chromedriver_path)
+
+        try:
+            driver = webdriver.Chrome(service=service, options=opts)
+            self.set_viewport_size(driver)
+            driver.get(self.htmlFile)
+            sleep(1)
+            driver.get_screenshot_as_file(self.currPath + "/dashboard.png")
+            driver.get_screenshot_as_file(path_to_server_image)
+            driver.quit()  # Make sure to quit the driver to free resources
+            self.logger.debug(f"Screenshot captured and saved to file {path_to_server_image}.")
+        except Exception as e:
+            self.logger.error(f"Error taking screenshot: {str(e)}")
+            raise
 
     def get_short_time(self, datetimeObj, is24hour=False):
         datetime_str = ""
