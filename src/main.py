@@ -24,7 +24,7 @@ from render.render import RenderHelper
 
 cfg = MagInkDashConfig.get_config()
 
-app = FastAPI(title="MagInkDashPlus Server", version="0.7.1")
+app = FastAPI(title="MagInkDashPlus Server", version="0.8.0")
 
 logger = structlog.get_logger()
 
@@ -83,7 +83,6 @@ def get_image() -> FileResponse:
             daily_forecast,
             events[: cfg.NUM_DAYS_IN_TEMPLATE],
             tf.name,
-            cfg.SHOW_ADDITIONAL_WEATHER,
         )
 
         end_time = time.time()

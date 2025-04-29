@@ -33,13 +33,15 @@ class IcsModule:
         eventList = self.calHelper.retrieve_events(
             ics_url, calStartDatetime, calEndDatetime, displayTZ
         )
+        # for e in eventList:
+        #     self.logger.debug(e)
 
         calDict = {}
 
         for event in eventList:
             if event["isMultiday"]:
                 numDays = (event["endDatetime"].date() - event["startDatetime"].date()).days
-                for day in range(0, numDays):
+                for day in range(0, numDays + 1):
                     calDict.setdefault(
                         event["startDatetime"].date() + dt.timedelta(days=day), []
                     ).append(event)
