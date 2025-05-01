@@ -4,7 +4,6 @@ be easily adapted to other display sizes and resolution by adjusting the config 
 CSS stylesheet.
 """
 
-
 import datetime as dt
 import tempfile
 import time
