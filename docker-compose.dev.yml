@@ -1,9 +1,9 @@
 services:
-  mag-ink-dash-plus:
+  family-e-ink-dashboard:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: mag-ink-dash-plus
+    container_name: family-e-ink-dashboard
     restart: unless-stopped
     ports:
       - "5000:5000"
