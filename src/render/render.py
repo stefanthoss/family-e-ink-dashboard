@@ -148,7 +148,7 @@ class RenderHelper:
         htmlFile = open(self.currPath + "/dashboard.html", "w")
         htmlFile.write(
             dashboard_template.format(
-                update_time=current_time.strftime("%B %-d, %-I:%M%p"),
+                update_time=current_time.strftime("%B %-d") + ", " + self.get_short_time(current_time),
                 day=current_date.strftime("%-d"),
                 month=current_date.strftime("%B"),
                 weekday=current_date.strftime("%A"),
@@ -159,12 +159,14 @@ class RenderHelper:
                 cal_day_4=cal_events_days[3],
                 cal_day_5=cal_events_days[4],
                 cal_day_6=cal_events_days[5],
+                cal_day_7=cal_events_days[6],
                 cal_day_1_events=cal_events_list[0],
                 cal_day_2_events=cal_events_list[1],
                 cal_day_3_events=cal_events_list[2],
                 cal_day_4_events=cal_events_list[3],
                 cal_day_5_events=cal_events_list[4],
                 cal_day_6_events=cal_events_list[5],
+                cal_day_7_events=cal_events_list[6],
                 # I'm choosing to show the forecast for the next hour instead of the current weather
                 current_weather_text=string.capwords(current_weather["weather"][0]["description"]),
                 current_weather_id=current_weather["weather"][0]["id"],
