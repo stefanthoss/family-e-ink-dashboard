@@ -1,7 +1,7 @@
 services:
-  mag-ink-dash-plus:
-    image: ghcr.io/stefanthoss/mag-ink-dash-plus:latest
-    container_name: mag-ink-dash-plus
+  family-e-ink-dashboard:
+    image: ghcr.io/stefanthoss/family-e-ink-dashboard:latest
+    container_name: family-e-ink-dashboard
     restart: unless-stopped
     ports:
       - "5000:5000"

@@ -1,9 +1,7 @@
 """
 This project is designed for the Inkplate 10 display. However, since the server code is only generating an image, it can
 be easily adapted to other display sizes and resolution by adjusting the config settings, HTML template and
-CSS stylesheet. This code is heavily adapted from my other project (MagInkCal) so do take a look at it if you're keen.
-As a dashboard, there are many other things that could be displayed, and it can be done as long as you are able to
-retrieve the information. So feel free to change up the code and amend it to your needs.
+CSS stylesheet.
 """
 
 
@@ -17,14 +15,14 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 
-from config import MagInkDashConfig
+from config import DashboardConfig
 from ics_cal.ics import IcsModule
 from owm.owm import OWMModule
 from render.render import RenderHelper
 
-cfg = MagInkDashConfig.get_config()
+cfg = DashboardConfig.get_config()
 
-app = FastAPI(title="MagInkDashPlus Server", version="0.8.0")
+app = FastAPI(title="Family E-Ink Dashboard Server", version="0.8.0")
 
 logger = structlog.get_logger()
 
