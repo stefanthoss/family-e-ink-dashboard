@@ -24,6 +24,7 @@ h1, h2, h3, p, span {
 .big-day {
     font-family: "TiltWarp-Regular", sans-serif;
     font-size: 16rem;
+    margin-top: -10px;
 }
 
 .event {
@@ -53,15 +54,5 @@ h1, h2, h3, p, span {
 }
 
 .date-padding {
-  padding-right:1;
-  padding-left:0;
-  padding-top:0;
-  padding-bottom:0;
-}
-
-.add-padding {
-  padding-right:10;
-  padding-left:10;
-  padding-top:0;
-  padding-bottom:0;
+    padding-right: 5px;
 }
