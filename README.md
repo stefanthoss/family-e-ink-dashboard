@@ -1,14 +1,12 @@
-# MagInkDashPlus
+# Family E-Ink Dashboard
 
-**This is a fork of the original [MagInkDash](https://github.com/speedyg0nz/MagInkDash) -- replacing the Google Calendar integration with a generic ICS feed, removing the OpenAI integration, and using a Docker-based REST API that renders the image on-the-fly instead of a Raspberry Pi cronjob.**
-
-This repo contains the code needed to drive an E-Ink Magic Dashboard that uses a Docker container on a different host to automatically retrieve updated content from an ICS calendar and OpenWeatherMap, format them into the desired layout, before serving it to a battery powered E-Ink display (Inkplate 10). Note that the code has only been tested on the specific hardware mentioned, but can be easily modified to work with other hardware (for both the server or display).
+This project contains code to build a battery-powered E-Ink dashboard for the entire family based on an Inkplate 10. It shows weather from OpenWeatherMap and a calendar feed which are rendered in a Docker container that runs somewhere in your home network. It started as a fork of the great [MagInkDash](https://github.com/speedyg0nz/MagInkDash) but the codebase has changed quite a bit since then.
 
 ![Dashboard Example](docs/dashboard-example.png)
 
 ## Background
 
-I liked the premise of [MagInkDash](https://github.com/speedyg0nz/MagInkDash) but I'd rather have a containerized backend doing the rendering since that's easier to setup in my Docker-based homelab. Additionally, I'd like to enable the use of non-Google calendars and remove cloud dependencies like ChatGPT (maybe I'll add an Ollama integration in the future). Read more about the project in the [MagInkDash README](https://github.com/speedyg0nz/MagInkDash#background).
+I liked the premise of [MagInkDash](https://github.com/speedyg0nz/MagInkDash) but I'd rather have a containerized backend doing the rendering since that's easier to setup in my Docker-based homelab. Additionally, I'd like to enable the use of non-Google calendars, remove the ChatGPT integration, show more data on the display, and render the data in real-time.
 
 ## Hardware Required
 
@@ -20,7 +18,7 @@ I liked the premise of [MagInkDash](https://github.com/speedyg0nz/MagInkDash) bu
 
 On the backend, a Python API based on Docker and FastAPI is serving the image with all the desired info. As soon as the Inkplate requests the image, it pulls the calendar data and a weather forecast from OpenWeatherMap. The retrieved content is then formatted into the desired layout and served as a PNG image file.
 
-On the Inkplate 10, a script will then connect to the server on the local network via a WiFi connection, retrieve the image and display it on the E-Ink screen. The Inkplate 10 then goes to sleep to conserve battery for 60 minutes or until the wake button is pressed. The dashboard remains displayed on the E-Ink screen, because well, E-Ink...
+On the Inkplate 10, a script will then connect to the server on the local network via a WiFi connection, retrieve the image and display it on the E-Ink screen. The Inkplate 10 then goes to sleep to conserve battery for 60 minutes or until the wake button is pressed.
 
 Some features of the dashboard: 
 
@@ -44,7 +42,7 @@ Some features of the dashboard:
 
 ## How to get the ICS URL
 
-MagInkDashPlus supports any standard ICS feed, here are a few popular calendars and how you can get the ICS feed URL. These instructions might change and are up-to-date as of December 2024.
+The dashboard supports any standard ICS feed, here are a few popular calendars and how you can get the ICS feed URL. These instructions might change and are up-to-date as of December 2024.
 
 ### Google Calendar
 
@@ -94,11 +92,12 @@ locally to start the application, API docs will be served at <http://localhost:5
 
 ## Acknowledgements
 
+- [MagInkDash](https://github.com/speedyg0nz/MagInkDash): Starting point for this project
 - [Lexend Font](https://fonts.google.com/specimen/Lexend) and [Tilt Warp Font](https://fonts.google.com/specimen/Tilt+Warp): Fonts used for the dashboard display
-- [Bootstrap](https://getbootstrap.com/): Styling toolkit to customise the look of the dashboard
+- [Bootstrap](https://getbootstrap.com/): Styling toolkit to customize the look of the dashboard
 - [Weather Icons](https://erikflowers.github.io/weather-icons/): Icons used for displaying of weather forecast information
 - [Freepik](https://www.freepik.com/): For the background image used in this dashboard
-  
+
 ## Contributing
 
 Feel free to fork the repo and modify it for your own purpose or create an issue and I see whether I can help.

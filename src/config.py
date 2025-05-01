@@ -10,7 +10,7 @@ logger = structlog.get_logger()
 _current_config = None
 
 
-class MagInkDashConfig:
+class DashboardConfig:
     ICS_URL: str = os.getenv("ICS_URL")
     if not ICS_URL:
         logger.error("ICS_URL needs to be set.")
@@ -37,5 +37,5 @@ class MagInkDashConfig:
     def get_config():
         global _current_config
         if _current_config is None:
-            _current_config = MagInkDashConfig()
+            _current_config = DashboardConfig()
         return _current_config
