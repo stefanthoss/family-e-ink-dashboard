@@ -39,7 +39,7 @@ def health_check():
     summary="Background image for testing",
 )
 def get_background() -> FileResponse:
-    return FileResponse("render/background.png", media_type="image/png")
+    return FileResponse("src/render/background.png", media_type="image/png")
 
 
 @app.get("/image", summary="Rendered dashboard image")
