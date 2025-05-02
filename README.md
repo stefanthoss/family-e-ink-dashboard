@@ -6,13 +6,13 @@ This project contains code to build a battery-powered E-Ink dashboard for the en
 
 ## Background
 
-I liked the premise of [MagInkDash](https://github.com/speedyg0nz/MagInkDash) but I'd rather have a containerized backend doing the rendering since that's easier to setup in my Docker-based homelab. Additionally, I'd like to enable the use of non-Google calendars, remove the ChatGPT integration, show more data on the display, and render the data in real-time.
+I liked the premise of [MagInkDash](https://github.com/speedyg0nz/MagInkDash) but I'd rather have a containerized backend doing the rendering since that's easier to setup in my Docker-based homelab. Additionally, I'd like to enable the use of non-Google calendars, remove the ChatGPT and Telegram integrations, show more data on the display, and render the data in real-time.
 
 ## Hardware Required
 
-* **A machine that supports Docker**: Used as a server to retrieve content and generate a dashboard for the E-Ink display. Just needs to have [Docker](https://docs.docker.com/get-started/get-docker/) and [Docker Compose](https://docs.docker.com/compose/) installed so any old machine or SBC would do. I would recommend that this container is not exposed to the public Internet since it shows your calendar information without authentication.
+* **Docker host machine** (`linux/amd64` and `linux/arm64` are supported): Used as a server to retrieve content and generate a dashboard for the E-Ink display. Just needs to have [Docker](https://docs.docker.com/get-started/get-docker/) and [Docker Compose](https://docs.docker.com/compose/) installed so any old machine or SBC would do. I would recommend not having this container exposed to the public Internet since it does not use authentication.
 
-* **[Inkplate 10 Battery Powered E-Ink Display](https://soldered.com/product/soldered-inkplate-10-9-7-e-paper-board-with-enclosure-copy/)**: Used as a client to display the generated dashboard. I went with this because it was an all-in-one with the enclosure and battery included so there's less hardware tinkering. But you could certainly go barebones and assemble the different parts yourself from scratch, i.e. display, microcontroller, case, and battery.
+* **[Inkplate 10 Battery Powered E-Ink Display](https://soldered.com/product/soldered-inkplate-10-9-7-e-paper-board-with-enclosure-copy/)**: Used as a client to display the generated dashboard. I went with this because it was an all-in-one with the enclosure and battery included so there's less hardware tinkering.
 
 ## How It Works
 
@@ -26,7 +26,7 @@ Some features of the dashboard:
 
 * **Calendar and Weather**: I'm currently displaying calendar events and weather forecast for current day and the upcoming two days. No real reason other than the desire to know what my weekend looks like on a Friday, and therefore helping me to better plan my weekend. Unfortunately, if you have a busy calendar with numerous events on a single day, the space on the dashboard will be consumed very quickly. If so, you might wish to modify the code to reduce/limit the number of days/events to be displayed.
 
-## Setting Up 
+## Installation
 
 1. On the server host, make sure that `docker` and `docker compose` are installed.
 
@@ -63,16 +63,16 @@ These are the config variables you can configure in the `environment` section of
 Variable | Required | Default | Description
 --- | --- | --- | ---
 ICS_URL | Yes | | URL of the ICS calendar feed
-OWM_API_KEY | Yes | | [OpenWeatherMap API key](https://openweathermap.org/api/one-call-3) to retrieve weather forecast
 LAT | Yes | | Latitude in decimal for the weather forecast location
 LNG | Yes | | Longitude in decimal for the weather forecast location
+OWM_API_KEY | Yes | | [OpenWeatherMap API key](https://openweathermap.org/api/one-call-3) to retrieve weather forecast
 DISPLAY_TZ | No | America/Los_Angeles | Time zone for displaying the calendar
-WEATHER_UNITS | No | metric | Units of measurement for the temperature, `metric` and `imperial` units are available
-NUM_CAL_DAYS_TO_QUERY | No | 30 | Number of days to query from the calendar
-IMAGE_WIDTH | No | 1200 | Width of image to be generated for display
 IMAGE_HEIGHT | No | 825 | Height of image to be generated for display
+IMAGE_WIDTH | No | 1200 | Width of image to be generated for display
+NUM_CAL_DAYS_TO_QUERY | No | 30 | Number of days to query from the calendar
 SHOW_ADDITIONAL_WEATHER | No | False | Whether to show "Feels Like" temperature and UV index for the next hour
 SHOW_MOON_PHASE | No | False | Whether to show the current moon phase next to the date
+WEATHER_UNITS | No | metric | Units of measurement for the temperature, `metric` and `imperial` units are available
 
 ## Development
 
