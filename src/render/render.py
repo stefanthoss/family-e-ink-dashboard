@@ -148,9 +148,7 @@ class RenderHelper:
         htmlFile = open(self.currPath + "/dashboard.html", "w")
         htmlFile.write(
             dashboard_template.format(
-                update_time=current_time.strftime("%B %-d")
-                + ", "
-                + self.get_short_time(current_time),
+                update_time=f"{current_time.strftime('%B %-d')}, {self.get_short_time(current_time)}",
                 day=current_date.strftime("%-d"),
                 month=current_date.strftime("%B"),
                 weekday=current_date.strftime("%A"),
