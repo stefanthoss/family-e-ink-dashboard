@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "family-e-ink-dashboard"
-version = "0.9.0"
+version = "0.9.1"
 description = "E-Ink dashboard showing weather and a family calendar running on an Inkplate 10, rendering done in a Docker container"
 authors = ["speedyg0nz", "stefanthoss"]
 license = "Apache License 2.0"

@@ -21,7 +21,7 @@ from render.render import RenderHelper
 
 cfg = DashboardConfig.get_config()
 
-app = FastAPI(title="Family E-Ink Dashboard Server", version="0.9.0")
+app = FastAPI(title="Family E-Ink Dashboard Server", version="0.9.1")
 
 logger = structlog.get_logger()
 
@@ -63,6 +63,8 @@ def get_image() -> FileResponse:
         cfg.DISPLAY_TZ,
         cfg.NUM_CAL_DAYS_TO_QUERY,
     )
+
+    logger.debug(events)
 
     end_time = time.time()
     logger.info(f"Completed data retrieval in {round(end_time - start_time, 3)} seconds.")
