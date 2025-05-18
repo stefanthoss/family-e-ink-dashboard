@@ -64,8 +64,6 @@ def get_image() -> FileResponse:
         cfg.NUM_CAL_DAYS_TO_QUERY,
     )
 
-    logger.debug(events)
-
     end_time = time.time()
     logger.info(f"Completed data retrieval in {round(end_time - start_time, 3)} seconds.")
 
