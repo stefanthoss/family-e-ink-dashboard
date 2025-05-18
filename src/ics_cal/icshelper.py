@@ -54,7 +54,7 @@ class IcsHelper:
                 )
                 new_event["endDatetime"] = local_timezone.localize(
                     dt.datetime.combine(event_end, dt.time(0, 0))
-                )
+                ) - dt.timedelta(minutes=1)
             else:
                 raise TypeError(f"Unknown type {type(event_start)} for DTSTART")
 
