@@ -132,7 +132,7 @@ class RenderHelper:
             cal_events_text = ""
             for event in e:
                 cal_events_text += '<div class="event">'
-                if event["isMultiday"] or event["allday"]:
+                if event["allday"]:
                     cal_events_text += event["summary"]
                 else:
                     cal_events_text += (
