@@ -33,8 +33,6 @@ class IcsModule:
         eventList = self.calHelper.retrieve_events(
             ics_url, calStartDatetime, calEndDatetime, displayTZ
         )
-        # for e in eventList:
-        #     self.logger.debug(e)
 
         calDict = {}
 
@@ -42,9 +40,15 @@ class IcsModule:
             if event["isMultiday"]:
                 numDays = (event["endDatetime"].date() - event["startDatetime"].date()).days
                 for day in range(0, numDays + 1):
-                    calDict.setdefault(
-                        event["startDatetime"].date() + dt.timedelta(days=day), []
-                    ).append(event)
+                    event_day = event.copy()
+                    if day > 0:
+                        # Set start time to midnight since event has started before this day
+                        event_day["startDatetime"] = event_day["startDatetime"].replace(
+                            hour=0, minute=0, second=0, microsecond=0
+                        ) + dt.timedelta(days=day)
+                        event_day["allday"] = True
+
+                    calDict.setdefault(event_day["startDatetime"].date(), []).append(event_day)
             else:
                 calDict.setdefault(event["startDatetime"].date(), []).append(event)
 

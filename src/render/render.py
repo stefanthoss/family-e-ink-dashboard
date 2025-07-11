@@ -132,7 +132,7 @@ class RenderHelper:
             cal_events_text = ""
             for event in e:
                 cal_events_text += '<div class="event">'
-                if event["isMultiday"] or event["allday"]:
+                if event["allday"]:
                     cal_events_text += event["summary"]
                 else:
                     cal_events_text += (
@@ -141,10 +141,10 @@ class RenderHelper:
                         + "</span> "
                         + event["summary"]
                     )
-                    if "location" in event:
-                        cal_events_text += (
-                            '<span class="event-location"> at ' + event["location"] + "</span>"
-                        )
+                if "location" in event:
+                    cal_events_text += (
+                        '<span class="event-location"> at ' + event["location"] + "</span>"
+                    )
                 cal_events_text += "</div>\n"
             if d == current_date:
                 cal_events_days.append("Today")
