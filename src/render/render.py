@@ -141,16 +141,16 @@ class RenderHelper:
                         + "</span> "
                         + event["summary"]
                     )
-                    if "location" in event:
-                        cal_events_text += (
-                            '<span class="event-location"> at ' + event["location"] + "</span>"
-                        )
-                    if self.cfg.SHOW_CALENDAR_NAME:
-                        cal_events_text += (
-                            '<span class="event-calendar-name"> '
-                            + event["calendarName"]
-                            + "</span>"
-                        )
+                if "location" in event:
+                    cal_events_text += (
+                        '<span class="event-location"> at ' + event["location"] + "</span>"
+                    )
+                if self.cfg.SHOW_CALENDAR_NAME:
+                    cal_events_text += (
+                        '<span class="event-calendar-name"> '
+                        + event["calendarName"]
+                        + "</span>"
+                    )
                 cal_events_text += "</div>\n"
             if d == current_date:
                 cal_events_days.append("Today")
