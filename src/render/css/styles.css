@@ -50,6 +50,10 @@ h1, h2, h3, p, span {
     color: gray
 }
 
+.event-calendar-name {
+    font-size: smaller;
+}
+
 .weather-forecast {
     font-family: "Lexend-Regular", sans-serif;
     font-size: 1.8rem;
