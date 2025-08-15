@@ -148,9 +148,9 @@ class RenderHelper:
                     )
                 if self.cfg.SHOW_CALENDAR_NAME:
                     cal_events_text += (
-                        '<span class="event-calendar-name"> '
+                        '<span class="event-calendar-name"> ('
                         + event["calendarName"]
-                        + "</span>"
+                        + ")</span>"
                     )
                 cal_events_text += "</div>\n"
             if d == current_date:
