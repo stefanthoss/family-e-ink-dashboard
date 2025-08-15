@@ -78,7 +78,7 @@ def get_image() -> FileResponse:
             current_weather,
             hourly_forecast,
             daily_forecast,
-            events[: cfg.NUM_DAYS_IN_TEMPLATE],
+            events[: cfg.NUM_CAL_DAYS_TO_QUERY],
             tf.name,
         )
 
