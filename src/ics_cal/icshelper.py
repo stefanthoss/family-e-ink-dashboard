@@ -30,7 +30,6 @@ class IcsHelper:
                 cal = icalendar.Calendar.from_ical(response.text)
             else:
                 self.logger.error(f"Received an error when downloading ICS: {response.text}")
-                sys.exit(1)
 
             try:
                 cal_name = cal['X-WR-CALNAME']
