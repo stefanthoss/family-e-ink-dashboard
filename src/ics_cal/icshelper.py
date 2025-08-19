@@ -32,7 +32,10 @@ class IcsHelper:
                 self.logger.error(f"Received an error when downloading ICS: {response.text}")
                 sys.exit(1)
 
-            cal_name = cal['X-WR-CALNAME']
+            try:
+                cal_name = cal['X-WR-CALNAME']
+            except KeyError:
+                cal_name = None
 
             events = recurring_ical_events.of(cal).between(calStartDatetime, calEndDatetime)
             local_timezone = pytz.timezone(localTZ)

@@ -146,7 +146,7 @@ class RenderHelper:
                     cal_events_text += (
                         '<span class="event-location"> at ' + event["location"] + "</span>"
                     )
-                if self.cfg.SHOW_CALENDAR_NAME:
+                if self.cfg.SHOW_CALENDAR_NAME and event["calendarName"] is not None:
                     cal_events_text += (
                         '<span class="event-calendar-name"> ('
                         + event["calendarName"]
