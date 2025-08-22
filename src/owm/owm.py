@@ -23,22 +23,20 @@ class OwmModule:
     def get_owm_weather(
         self, lat: float, lon: float, api_key: str, units: WeatherUnits
     ) -> Dict[str, Any]:
+        results: Dict[str, Any] = {}
+
         url = f"https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&appid={api_key}&exclude=minutely,alerts&units={units.value}"
         response = requests.get(url)
 
         if response.ok:
             data = json.loads(response.text)
-            curr_weather = data["current"]
-            hourly_forecast = data["hourly"]
-            daily_forecast = data["daily"]
-            results = {
-                "current_weather": curr_weather,
-                "hourly_forecast": hourly_forecast,
-                "daily_forecast": daily_forecast,
-            }
-            return results
+            results["current_weather"] = data["current"]
+            results["hourly_forecast"] = data["hourly"]
+            results["daily_forecast"] = data["daily"]
         else:
             self.logger.error(f"OpenWeatherMap returned error: {response.text}")
+
+        return results
 
     def get_weather(
         self,

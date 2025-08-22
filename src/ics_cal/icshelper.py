@@ -48,7 +48,7 @@ class IcsHelper:
             local_timezone = pytz.timezone(localTZ)
 
             for event in events:
-                new_event = {"summary": str(event.get("SUMMARY"))}
+                new_event: Dict[str, Any] = {"summary": str(event.get("SUMMARY"))}
 
                 if "LOCATION" in event:
                     new_event["location"] = str(event.get("LOCATION"))
