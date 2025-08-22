@@ -142,9 +142,16 @@ class RenderHelper:
                         + "</span> "
                         + event["summary"]
                     )
-                if "location" in event:
+                # I think some clients set the location to ''
+                if "location" in event and event["location"] != '':
                     cal_events_text += (
                         '<span class="event-location"> at ' + event["location"] + "</span>"
+                    )
+                if self.cfg.SHOW_CALENDAR_NAME and event["calendarName"] is not None:
+                    cal_events_text += (
+                        '<span class="event-calendar-name"> ('
+                        + event["calendarName"]
+                        + ")</span>"
                     )
                 cal_events_text += "</div>\n"
             if d == current_date:

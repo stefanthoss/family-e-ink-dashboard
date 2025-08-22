@@ -62,7 +62,7 @@ These are the config variables you can configure in the `environment` section of
 
 Variable | Required | Default | Description
 --- | --- | --- | ---
-ICS_URL | Yes | | URL of the ICS calendar feed
+ICS_URL | Yes | | URL of the ICS calendar feeds (add as much as an environment variable can hold, separated by a "\|")
 LAT | Yes | | Latitude in decimal for the weather forecast location
 LNG | Yes | | Longitude in decimal for the weather forecast location
 OWM_API_KEY | Yes | | [OpenWeatherMap API key](https://openweathermap.org/api/one-call-3) to retrieve weather forecast
@@ -73,6 +73,7 @@ NUM_CAL_DAYS_TO_QUERY | No | 30 | Number of days to query from the calendar
 SHOW_ADDITIONAL_WEATHER | No | False | Whether to show "Feels Like" temperature and UV index for the next hour
 SHOW_MOON_PHASE | No | False | Whether to show the current moon phase next to the date
 WEATHER_UNITS | No | metric | Units of measurement for the temperature, `metric` and `imperial` units are available
+SHOW_CALENDAR_NAME | No | False | Show the calendar name on the event line (useful for multiple calendars)
 
 ## Development
 
