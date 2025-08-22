@@ -32,7 +32,6 @@ class DashboardConfig:
     WEATHER_UNITS: WeatherUnits = WeatherUnits[os.getenv("WEATHER_UNITS", "metric")]
     SHOW_ADDITIONAL_WEATHER: bool = bool(os.getenv("SHOW_ADDITIONAL_WEATHER", False))
     SHOW_MOON_PHASE: bool = bool(os.getenv("SHOW_MOON_PHASE", False))
-    NUM_DAYS_IN_TEMPLATE: int = 7  # Not configurable because it's hard-coded in the HTML template
     SHOW_CALENDAR_NAME: bool = bool(os.getenv("SHOW_CALENDAR_NAME", False))
 
     def get_config():

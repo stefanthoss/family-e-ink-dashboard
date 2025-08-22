@@ -9,6 +9,7 @@ import pathlib
 import string
 import subprocess
 from time import sleep
+from jinja2 import Environment, FileSystemLoader
 
 import structlog
 from selenium import webdriver
@@ -120,8 +121,8 @@ class RenderHelper:
         path_to_server_image,
     ):
         # Read html template
-        with open(self.currPath + "/dashboard_template.html", "r") as file:
-            dashboard_template = file.read()
+        environment = Environment(loader=FileSystemLoader(self.currPath))
+        dashboard_template = environment.get_template("/dashboard_template.html.j2")
 
         current_date = current_time.date()
 
@@ -167,8 +168,8 @@ class RenderHelper:
                 '<div class="event"><span class="event-time">No Events</span></div>'
             )
 
-        self.extend_list(cal_events_days, self.cfg.NUM_DAYS_IN_TEMPLATE, "")
-        self.extend_list(cal_events_list, self.cfg.NUM_DAYS_IN_TEMPLATE, "")
+        self.extend_list(cal_events_days, self.cfg.NUM_CAL_DAYS_TO_QUERY, "")
+        self.extend_list(cal_events_list, self.cfg.NUM_CAL_DAYS_TO_QUERY, "")
 
         weather_add_info = "&nbsp;"
         if self.cfg.SHOW_ADDITIONAL_WEATHER:
@@ -188,26 +189,14 @@ class RenderHelper:
         # Append the bottom and write the file
         htmlFile = open(self.currPath + "/dashboard.html", "w")
         htmlFile.write(
-            dashboard_template.format(
+            dashboard_template.render(
                 update_time=f"{current_time.strftime('%B %-d')}, {self.get_short_time(current_time)}",
                 day=current_date.strftime("%-d"),
                 month=current_date.strftime("%B"),
                 weekday=current_date.strftime("%A"),
                 dayaftertomorrow=(current_date + dt.timedelta(days=2)).strftime("%A"),
-                cal_day_1=cal_events_days[0],
-                cal_day_2=cal_events_days[1],
-                cal_day_3=cal_events_days[2],
-                cal_day_4=cal_events_days[3],
-                cal_day_5=cal_events_days[4],
-                cal_day_6=cal_events_days[5],
-                cal_day_7=cal_events_days[6],
-                cal_day_1_events=cal_events_list[0],
-                cal_day_2_events=cal_events_list[1],
-                cal_day_3_events=cal_events_list[2],
-                cal_day_4_events=cal_events_list[3],
-                cal_day_5_events=cal_events_list[4],
-                cal_day_6_events=cal_events_list[5],
-                cal_day_7_events=cal_events_list[6],
+                cal_days=cal_events_days,
+                cal_days_events=cal_events_list,
                 # I'm choosing to show the forecast for the next hour instead of the current weather
                 current_weather_text=string.capwords(current_weather["weather"][0]["description"]),
                 current_weather_id=current_weather["weather"][0]["id"],
