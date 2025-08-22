@@ -7,6 +7,7 @@ CSS stylesheet.
 import datetime as dt
 import tempfile
 import time
+from typing import Any, Dict
 
 import pytz
 import structlog
@@ -16,7 +17,7 @@ from fastapi.responses import FileResponse
 
 from config import DashboardConfig
 from ics_cal.ics import IcsModule
-from owm.owm import OWMModule
+from owm.owm import OwmModule
 from render.render import RenderHelper
 
 cfg = DashboardConfig.get_config()
@@ -25,12 +26,12 @@ app = FastAPI(title="Family E-Ink Dashboard Server", version="0.9.1")
 
 logger = structlog.get_logger()
 
-owmModule = OWMModule()
+owmModule = OwmModule()
 calModule = IcsModule()
 
 
 @app.get("/health")
-def health_check():
+def health_check() -> Dict[str, Any]:
     return {"status": "ok"}
 
 
@@ -54,7 +55,9 @@ def get_image() -> FileResponse:
 
     currTime = dt.datetime.now(pytz.timezone(cfg.DISPLAY_TZ))
     calStartDatetime = currTime.replace(hour=0, minute=0, second=0, microsecond=0)
-    calEndDatetime = calStartDatetime + dt.timedelta(days=cfg.NUM_CAL_DAYS_TO_QUERY, seconds=-1)
+    calEndDatetime = calStartDatetime + dt.timedelta(
+        days=cfg.NUM_CAL_DAYS_TO_QUERY, seconds=-1
+    )
 
     events = calModule.get_events(
         cfg.ICS_URL,
@@ -65,10 +68,14 @@ def get_image() -> FileResponse:
     )
 
     end_time = time.time()
-    logger.info(f"Completed data retrieval in {round(end_time - start_time, 3)} seconds.")
+    logger.info(
+        f"Completed data retrieval in {round(end_time - start_time, 3)} seconds."
+    )
 
     # TODO: delete=False leads to accumulating temporary files in /tmp but is currently needed because the FileResponse is async.
-    with tempfile.NamedTemporaryFile(suffix=".png", delete_on_close=False, delete=False) as tf:
+    with tempfile.NamedTemporaryFile(
+        suffix=".png", delete_on_close=False, delete=False
+    ) as tf:
         start_time = time.time()
         logger.info("Generating image...")
 
