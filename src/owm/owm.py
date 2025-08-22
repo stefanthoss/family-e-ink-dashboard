@@ -4,7 +4,6 @@ signed up for an OWM account and also obtained a valid API key that is specified
 """
 
 import json
-import sys
 from enum import Enum
 from typing import Any, Dict, List, Tuple
 
