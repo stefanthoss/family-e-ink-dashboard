@@ -40,7 +40,6 @@ class OwmModule:
             return results
         else:
             self.logger.error(f"OpenWeatherMap returned error: {response.text}")
-            sys.exit(1)
 
     def get_weather(
         self,
