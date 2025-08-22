@@ -22,7 +22,7 @@ from render.render import RenderHelper
 
 cfg = DashboardConfig.get_config()
 
-app = FastAPI(title="Family E-Ink Dashboard Server", version="0.9.1")
+app = FastAPI(title="Family E-Ink Dashboard Server", version="0.10.0")
 
 logger = structlog.get_logger()
 
