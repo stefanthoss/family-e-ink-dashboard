@@ -9,23 +9,26 @@ import pathlib
 import string
 import subprocess
 from time import sleep
-from jinja2 import Environment, FileSystemLoader
+from typing import Any, Dict, List, Tuple
 
 import structlog
+from jinja2 import Environment, FileSystemLoader
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 
+from config import DashboardConfig
+
 
 class RenderHelper:
-    def __init__(self, cfg):
+    def __init__(self, cfg: DashboardConfig) -> None:
         self.logger = structlog.get_logger()
         self.currPath = str(pathlib.Path(__file__).parent.absolute())
         self.htmlFile = "file://" + self.currPath + "/dashboard.html"
         self.cfg = cfg
 
-    def set_viewport_size(self, driver):
+    def set_viewport_size(self, driver: webdriver.Chrome) -> None:
         # Extract the current window size from the driver
         current_window_size = driver.get_window_size()
 
@@ -35,12 +38,16 @@ class RenderHelper:
         inner_height = int(html.get_attribute("clientHeight"))
 
         # "Internal width you want to set+Set "outer frame width" to window size
-        target_width = self.cfg.IMAGE_WIDTH + (current_window_size["width"] - inner_width)
-        target_height = self.cfg.IMAGE_HEIGHT + (current_window_size["height"] - inner_height)
+        target_width = self.cfg.IMAGE_WIDTH + (
+            current_window_size["width"] - inner_width
+        )
+        target_height = self.cfg.IMAGE_HEIGHT + (
+            current_window_size["height"] - inner_height
+        )
 
         driver.set_window_rect(width=target_width, height=target_height)
 
-    def get_screenshot(self, path_to_server_image):
+    def get_screenshot(self, path_to_server_image: str) -> None:
         opts = Options()
         opts.add_argument("--disable-dev-shm-usage")
         opts.add_argument("--disable-gpu")
@@ -53,7 +60,9 @@ class RenderHelper:
         # Try to automatically locate chromedriver, source: https://github.com/fdmarcin/MagInkDash-updated
         try:
             chromedriver_path = (
-                subprocess.check_output(["which", "chromedriver"]).decode("utf-8").strip()
+                subprocess.check_output(["which", "chromedriver"])
+                .decode("utf-8")
+                .strip()
             )
             self.logger.info(f"Found chromedriver at: {chromedriver_path}")
         except (subprocess.SubprocessError, FileNotFoundError):
@@ -68,7 +77,9 @@ class RenderHelper:
             for path in possible_paths:
                 if os.path.exists(path) and os.access(path, os.X_OK):
                     chromedriver_path = path
-                    self.logger.info(f"Found chromedriver at default location: {chromedriver_path}")
+                    self.logger.info(
+                        f"Found chromedriver at default location: {chromedriver_path}"
+                    )
                     break
 
             if not chromedriver_path:
@@ -88,12 +99,14 @@ class RenderHelper:
             driver.get_screenshot_as_file(self.currPath + "/dashboard.png")
             driver.get_screenshot_as_file(path_to_server_image)
             driver.quit()  # Make sure to quit the driver to free resources
-            self.logger.debug(f"Screenshot captured and saved to file {path_to_server_image}.")
+            self.logger.debug(
+                f"Screenshot captured and saved to file {path_to_server_image}."
+            )
         except Exception as e:
             self.logger.error(f"Error taking screenshot: {str(e)}")
             raise
 
-    def get_short_time(self, datetimeObj, is24hour=False):
+    def get_short_time(self, datetimeObj: dt.datetime, is24hour: bool = False) -> str:
         datetime_str = ""
         if is24hour:
             datetime_str = "{}:{:02d}".format(datetimeObj.hour, datetimeObj.minute)
@@ -113,22 +126,22 @@ class RenderHelper:
 
     def process_inputs(
         self,
-        current_time,
-        current_weather,
-        hourly_forecast,
-        daily_forecast,
-        events,
-        path_to_server_image,
-    ):
+        current_time: dt.datetime,
+        current_weather: Dict[str, Any],
+        hourly_forecast: List[Dict[str, Any]],
+        daily_forecast: List[Dict[str, Any]],
+        events: List[Tuple[dt.date, List[Dict[str, Any]]]],
+        path_to_server_image: str,
+    ) -> None:
         # Read html template
         environment = Environment(loader=FileSystemLoader(self.currPath))
-        dashboard_template = environment.get_template("/dashboard_template.html.j2")
+        dashboard_template = environment.get_template("dashboard_template.html.j2")
 
         current_date = current_time.date()
 
         # Populate the date and events
-        cal_events_days = []
-        cal_events_list = []
+        cal_events_days: List[str] = []
+        cal_events_list: List[str] = []
         for d, e in events:
             cal_events_text = ""
             for event in e:
@@ -142,10 +155,12 @@ class RenderHelper:
                         + "</span> "
                         + event["summary"]
                     )
-                # I think some clients set the location to ''
-                if "location" in event and event["location"] != '':
+                # Some clients set the location to empty string
+                if "location" in event and event["location"] != "":
                     cal_events_text += (
-                        '<span class="event-location"> at ' + event["location"] + "</span>"
+                        '<span class="event-location"> at '
+                        + event["location"]
+                        + "</span>"
                     )
                 if self.cfg.SHOW_CALENDAR_NAME and event["calendarName"] is not None:
                     cal_events_text += (
@@ -175,11 +190,13 @@ class RenderHelper:
         if self.cfg.SHOW_ADDITIONAL_WEATHER:
             additional_infos = []
             if round(current_weather["temp"]) != round(current_weather["feels_like"]):
-                additional_infos.append(f'Feels Like {round(current_weather["feels_like"])}°')
+                additional_infos.append(
+                    f"Feels Like {round(current_weather['feels_like'])}°"
+                )
             if (current_weather["sunrise"] < current_weather["dt"]) and (
                 current_weather["dt"] < current_weather["sunset"]
             ):
-                additional_infos.append(f'UV Index {round(current_weather["uvi"])}')
+                additional_infos.append(f"UV Index {round(current_weather['uvi'])}")
             weather_add_info = " | ".join(additional_infos)
 
         today_moon_phase = ""
@@ -198,9 +215,11 @@ class RenderHelper:
                 cal_days=cal_events_days,
                 cal_days_events=cal_events_list,
                 # I'm choosing to show the forecast for the next hour instead of the current weather
-                current_weather_text=string.capwords(current_weather["weather"][0]["description"]),
+                current_weather_text=string.capwords(
+                    current_weather["weather"][0]["description"]
+                ),
                 current_weather_id=current_weather["weather"][0]["id"],
-                current_weather_temp=f'{round(current_weather["temp"])}°',
+                current_weather_temp=f"{round(current_weather['temp'])}°",
                 current_weather_add_info=weather_add_info,
                 today_weather_id=daily_forecast[0]["weather"][0]["id"],
                 tomorrow_weather_id=daily_forecast[1]["weather"][0]["id"],
@@ -221,10 +240,12 @@ class RenderHelper:
 
         self.get_screenshot(path_to_server_image)
 
-    def extend_list(self, my_list, new_length, default_value):
+    def extend_list(
+        self, my_list: List[str], new_length: int, default_value: str
+    ) -> None:
         return my_list.extend([default_value] * (new_length - len(my_list)))
 
-    def wi_moon_phase(self, value):
+    def wi_moon_phase(self, value: float) -> str:
         """
         This function translates a number representing the phase of the moon as returned by the
         OpenWeatherMap API into the equivalent Weather Icon name. The input value should be between

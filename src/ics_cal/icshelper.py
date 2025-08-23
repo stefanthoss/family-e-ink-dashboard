@@ -5,7 +5,7 @@ This is where we retrieve events from the ICS calendar.
 """
 
 import datetime as dt
-import sys
+from typing import Any, Dict, List
 
 import icalendar
 import pytz
@@ -15,10 +15,16 @@ import structlog
 
 
 class IcsHelper:
-    def __init__(self):
+    def __init__(self) -> None:
         self.logger = structlog.get_logger()
 
-    def retrieve_events(self, ics_url, calStartDatetime, calEndDatetime, localTZ):
+    def retrieve_events(
+        self,
+        ics_url: str,
+        calStartDatetime: dt.datetime,
+        calEndDatetime: dt.datetime,
+        localTZ: str,
+    ) -> List[Dict[str, Any]]:
         # Call the ICS calendar and return a list of events that fall within the specified dates
         event_list = []
 
@@ -29,18 +35,20 @@ class IcsHelper:
             if response.ok:
                 cal = icalendar.Calendar.from_ical(response.text)
             else:
-                self.logger.error(f"Received an error when downloading ICS: {response.text}")
+                self.logger.error(
+                    f"Received an error when downloading ICS: {response.text}"
+                )
+                continue
 
-            try:
-                cal_name = cal['X-WR-CALNAME']
-            except KeyError:
-                cal_name = None
+            cal_name = cal.get("X-WR-CALNAME", None)
 
-            events = recurring_ical_events.of(cal).between(calStartDatetime, calEndDatetime)
+            events = recurring_ical_events.of(cal).between(
+                calStartDatetime, calEndDatetime
+            )
             local_timezone = pytz.timezone(localTZ)
 
             for event in events:
-                new_event = {"summary": str(event.get("SUMMARY"))}
+                new_event: Dict[str, Any] = {"summary": str(event.get("SUMMARY"))}
 
                 if "LOCATION" in event:
                     new_event["location"] = str(event.get("LOCATION"))
@@ -73,7 +81,9 @@ class IcsHelper:
                     and new_event["startDatetime"] < calEndDatetime
                 ):
                     # Don't show past days for ongoing multiday event
-                    new_event["startDatetime"] = max(new_event["startDatetime"], calStartDatetime)
+                    new_event["startDatetime"] = max(
+                        new_event["startDatetime"], calStartDatetime
+                    )
                     new_event["calendarName"] = cal_name
 
                     event_list.append(new_event)
