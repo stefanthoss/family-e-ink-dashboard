@@ -48,6 +48,9 @@ class DashboardConfig:
         self.SHOW_CALENDAR_NAME: bool = (
             os.getenv("SHOW_CALENDAR_NAME", "False").lower() == "true"
         )
+        self.USE_24H_FORMAT: bool = (
+            os.getenv("USE_24H_FORMAT", "True").lower() == "true"
+        )
 
     @classmethod
     def get_config(cls) -> "DashboardConfig":

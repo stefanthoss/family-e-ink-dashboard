@@ -20,7 +20,7 @@ On the backend, a Python API based on Docker and FastAPI is serving the image wi
 
 On the Inkplate 10, a script will then connect to the server on the local network via a WiFi connection, retrieve the image and display it on the E-Ink screen. The Inkplate 10 then goes to sleep to conserve battery for 60 minutes or until the wake button is pressed.
 
-Some features of the dashboard: 
+Some features of the dashboard:
 
 * **Battery Life**: As with similar battery powered devices, the biggest question is the battery life. With the 3000mAh that comes with the manufacturer assembled Inkplate 10, we could potentially be looking at 6-8 month battery life. With this crazy battery life, there are much more options available. Perhaps solar power for unlimited battery life? Or reducing the refresh interval to 15 or 30min to increase the information timeliness?
 
@@ -38,7 +38,7 @@ Some features of the dashboard:
 
 5. As for the Inkplate, I'm not going to devote too much space here since there are [official resources that describe how to set it up](https://inkplate.readthedocs.io/en/latest/get-started.html). It may take some trial and error for those new to microcontroller programming but it's all worth it! Only the Arduino portion of the guide is relevant, and you'll need to be able to run *.ino scripts via Arduino IDE before proceeding. From there, run the `inkplate10.ino` file from the `inkplate10` folder from the Arduino IDE when connected to the Inkplate.
 
-6. That's all! Your Magic Dashboard should now be refreshed every hour! 
+6. That's all! Your family calendar dashboard should now be refreshed every hour!
 
 ## How to get the ICS URL
 
@@ -73,6 +73,7 @@ NUM_CAL_DAYS_TO_QUERY | No | 30 | Number of days to query from the calendar
 SHOW_ADDITIONAL_WEATHER | No | False | Whether to show "Feels Like" temperature and UV index for the next hour
 SHOW_CALENDAR_NAME | No | False | Show the calendar name on the event line (useful for multiple calendars)
 SHOW_MOON_PHASE | No | False | Whether to show the current moon phase next to the date
+USE_24H_FORMAT | No | True | Whether to display time in 24‑hour format (otherwise 12‑hour AM/PM)
 WEATHER_UNITS | No | metric | Units of measurement for the temperature, `metric` and `imperial` units are available
 
 ## Development
