@@ -33,12 +33,9 @@ class DashboardConfig:
             sys.exit(1)
 
         self.DISPLAY_TZ: str = os.getenv("DISPLAY_TZ", "America/Los_Angeles")
-        self.NUM_CAL_DAYS_TO_QUERY: int = int(os.getenv("NUM_CAL_DAYS_TO_QUERY", "30"))
-        self.IMAGE_WIDTH: int = int(os.getenv("IMAGE_WIDTH", "1200"))
         self.IMAGE_HEIGHT: int = int(os.getenv("IMAGE_HEIGHT", "825"))
-        self.WEATHER_UNITS: WeatherUnits = WeatherUnits[
-            os.getenv("WEATHER_UNITS", "metric")
-        ]
+        self.IMAGE_WIDTH: int = int(os.getenv("IMAGE_WIDTH", "1200"))
+        self.NUM_CAL_DAYS_TO_QUERY: int = int(os.getenv("NUM_CAL_DAYS_TO_QUERY", "30"))
         self.SHOW_ADDITIONAL_WEATHER: bool = (
             os.getenv("SHOW_ADDITIONAL_WEATHER", "False").lower() == "true"
         )
@@ -48,9 +45,8 @@ class DashboardConfig:
         self.SHOW_CALENDAR_NAME: bool = (
             os.getenv("SHOW_CALENDAR_NAME", "False").lower() == "true"
         )
-        self.USE_24H_FORMAT: bool = (
-            os.getenv("USE_24H_FORMAT", "True").lower() == "true"
-        )
+        self.USE_24H_FORMAT: bool = (os.getenv("USE_24H_FORMAT", "True").lower() == "true")
+        self.WEATHER_UNITS: WeatherUnits = WeatherUnits[os.getenv("WEATHER_UNITS", "metric")]
 
     @classmethod
     def get_config(cls) -> "DashboardConfig":
