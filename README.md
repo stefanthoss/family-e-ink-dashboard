@@ -20,7 +20,7 @@ On the backend, a Python API based on Docker and FastAPI is serving the image wi
 
 On the Inkplate 10, a script will then connect to the server on the local network via a WiFi connection, retrieve the image and display it on the E-Ink screen. The Inkplate 10 then goes to sleep to conserve battery for 60 minutes or until the wake button is pressed.
 
-Some features of the dashboard: 
+Some features of the dashboard:
 
 * **Battery Life**: As with similar battery powered devices, the biggest question is the battery life. With the 3000mAh that comes with the manufacturer assembled Inkplate 10, we could potentially be looking at 6-8 month battery life. With this crazy battery life, there are much more options available. Perhaps solar power for unlimited battery life? Or reducing the refresh interval to 15 or 30min to increase the information timeliness?
 
@@ -38,7 +38,7 @@ Some features of the dashboard:
 
 5. As for the Inkplate, I'm not going to devote too much space here since there are [official resources that describe how to set it up](https://inkplate.readthedocs.io/en/latest/get-started.html). It may take some trial and error for those new to microcontroller programming but it's all worth it! Only the Arduino portion of the guide is relevant, and you'll need to be able to run *.ino scripts via Arduino IDE before proceeding. From there, run the `inkplate10.ino` file from the `inkplate10` folder from the Arduino IDE when connected to the Inkplate.
 
-6. That's all! Your Magic Dashboard should now be refreshed every hour! 
+6. That's all! Your Magic Dashboard should now be refreshed every hour!
 
 ## How to get the ICS URL
 
@@ -92,6 +92,24 @@ docker compose -f docker-compose.dev.yml up --build
 ```
 
 locally to start the application, API docs will be served at <http://localhost:5000/docs>.
+
+## Testing
+
+Run the tests locally:
+
+```shell
+# Run all tests
+poetry run pytest
+
+# Run tests with coverage report
+poetry run pytest --cov=src --cov-report=term-missing
+
+# Run tests with verbose output
+poetry run pytest -v
+
+# Run specific test files
+poetry run pytest tests/test_config.py
+```
 
 ### Linting & Formatting
 
