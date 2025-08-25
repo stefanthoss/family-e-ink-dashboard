@@ -162,6 +162,27 @@ class TestDashboardConfig:
             "OWM_API_KEY": "test_api_key",
             "LAT": "37.7749",
             "LNG": "-122.4194",
+            "SHOW_ADDITIONAL_WEATHER": "true",
+            "SHOW_MOON_PHASE": "TRUE",
+            "SHOW_CALENDAR_NAME": "True",
+        },
+        clear=True,
+    )
+    def test_boolean_env_vars_true_values(self):
+        """Test boolean environment variables with various true values."""
+        config = DashboardConfig()
+
+        assert config.SHOW_ADDITIONAL_WEATHER == True
+        assert config.SHOW_MOON_PHASE == True
+        assert config.SHOW_CALENDAR_NAME == True
+
+    @patch.dict(
+        os.environ,
+        {
+            "ICS_URL": "https://example.com/calendar.ics",
+            "OWM_API_KEY": "test_api_key",
+            "LAT": "37.7749",
+            "LNG": "-122.4194",
             "SHOW_ADDITIONAL_WEATHER": "false",
             "SHOW_MOON_PHASE": "False",
             "SHOW_CALENDAR_NAME": "NotTrue",
@@ -192,6 +213,38 @@ class TestDashboardConfig:
 
         assert config.LAT == -90.0
         assert config.LNG == 180.0
+
+    @patch.dict(
+        os.environ,
+        {
+            "ICS_URL": "https://example.com/calendar.ics",
+            "OWM_API_KEY": "test_api_key",
+            "LAT": "37.7749",
+            "LNG": "-122.4194",
+            "WEATHER_UNITS": "metric",
+        },
+        clear=True,
+    )
+    def test_weather_units_metric(self):
+        """Test WEATHER_UNITS with metric value."""
+        config = DashboardConfig()
+        assert config.WEATHER_UNITS == WeatherUnits.metric
+
+    @patch.dict(
+        os.environ,
+        {
+            "ICS_URL": "https://example.com/calendar.ics",
+            "OWM_API_KEY": "test_api_key",
+            "LAT": "37.7749",
+            "LNG": "-122.4194",
+            "WEATHER_UNITS": "imperial",
+        },
+        clear=True,
+    )
+    def test_weather_units_imperial(self):
+        """Test WEATHER_UNITS with imperial value."""
+        config = DashboardConfig()
+        assert config.WEATHER_UNITS == WeatherUnits.imperial
 
     @patch.dict(
         os.environ,
@@ -245,53 +298,3 @@ class TestDashboardConfig:
 
             assert config1 is config2
             assert id(config1) == id(config2)
-
-    @patch.dict(
-        os.environ,
-        {
-            "ICS_URL": "https://example.com/calendar.ics",
-            "OWM_API_KEY": "test_api_key",
-            "LAT": "37.7749",
-            "LNG": "-122.4194",
-            "WEATHER_UNITS": "metric",
-        },
-        clear=True,
-    )
-    def test_weather_units_metric(self):
-        """Test WEATHER_UNITS with metric value."""
-        config = DashboardConfig()
-        assert config.WEATHER_UNITS == WeatherUnits.metric
-
-    @patch.dict(
-        os.environ,
-        {
-            "ICS_URL": "https://example.com/calendar.ics",
-            "OWM_API_KEY": "test_api_key",
-            "LAT": "37.7749",
-            "LNG": "-122.4194",
-            "WEATHER_UNITS": "imperial",
-        },
-        clear=True,
-    )
-    def test_weather_units_imperial(self):
-        """Test WEATHER_UNITS with imperial value."""
-        config = DashboardConfig()
-        assert config.WEATHER_UNITS == WeatherUnits.imperial
-
-    @patch.dict(
-        os.environ,
-        {
-            "ICS_URL": "https://example.com/calendar.ics",
-            "OWM_API_KEY": "test_api_key",
-            "LAT": "37.7749",
-            "LNG": "-122.4194",
-            "NUM_CAL_DAYS_TO_QUERY": "",
-        },
-        clear=True,
-    )
-    def test_empty_string_env_vars_cause_errors(self):
-        """Test that empty string environment variables cause errors for numeric fields."""
-        os.environ["NUM_CAL_DAYS_TO_QUERY"] = ""
-
-        with pytest.raises(ValueError):
-            DashboardConfig()

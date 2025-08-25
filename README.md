@@ -93,22 +93,17 @@ docker compose -f docker-compose.dev.yml up --build
 
 locally to start the application, API docs will be served at <http://localhost:5000/docs>.
 
-## Testing
-
-Run the tests locally:
+### Testing
 
 ```shell
 # Run all tests
 poetry run pytest
 
-# Run tests with coverage report
-poetry run pytest --cov=src --cov-report=term-missing
-
 # Run tests with verbose output
 poetry run pytest -v
 
-# Run specific test files
-poetry run pytest tests/test_config.py
+# Run tests with coverage report
+poetry run pytest --cov=src --cov-report=term-missing
 ```
 
 ### Linting & Formatting
