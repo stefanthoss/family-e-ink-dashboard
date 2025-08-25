@@ -35,16 +35,12 @@ class IcsHelper:
             if response.ok:
                 cal = icalendar.Calendar.from_ical(response.text)
             else:
-                self.logger.error(
-                    f"Received an error when downloading ICS: {response.text}"
-                )
+                self.logger.error(f"Received an error when downloading ICS: {response.text}")
                 continue
 
             cal_name = cal.get("X-WR-CALNAME", None)
 
-            events = recurring_ical_events.of(cal).between(
-                calStartDatetime, calEndDatetime
-            )
+            events = recurring_ical_events.of(cal).between(calStartDatetime, calEndDatetime)
             local_timezone = pytz.timezone(localTZ)
 
             for event in events:
@@ -81,9 +77,7 @@ class IcsHelper:
                     and new_event["startDatetime"] < calEndDatetime
                 ):
                     # Don't show past days for ongoing multiday event
-                    new_event["startDatetime"] = max(
-                        new_event["startDatetime"], calStartDatetime
-                    )
+                    new_event["startDatetime"] = max(new_event["startDatetime"], calStartDatetime)
                     new_event["calendarName"] = cal_name
 
                     event_list.append(new_event)

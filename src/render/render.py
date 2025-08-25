@@ -38,12 +38,8 @@ class RenderHelper:
         inner_height = int(html.get_attribute("clientHeight") or "0")
 
         # "Internal width you want to set+Set "outer frame width" to window size
-        target_width = self.cfg.IMAGE_WIDTH + (
-            current_window_size["width"] - inner_width
-        )
-        target_height = self.cfg.IMAGE_HEIGHT + (
-            current_window_size["height"] - inner_height
-        )
+        target_width = self.cfg.IMAGE_WIDTH + (current_window_size["width"] - inner_width)
+        target_height = self.cfg.IMAGE_HEIGHT + (current_window_size["height"] - inner_height)
 
         driver.set_window_rect(width=target_width, height=target_height)
 
@@ -60,9 +56,7 @@ class RenderHelper:
         # Try to automatically locate chromedriver, source: https://github.com/fdmarcin/MagInkDash-updated
         try:
             chromedriver_path = (
-                subprocess.check_output(["which", "chromedriver"])
-                .decode("utf-8")
-                .strip()
+                subprocess.check_output(["which", "chromedriver"]).decode("utf-8").strip()
             )
             self.logger.info(f"Found chromedriver at: {chromedriver_path}")
         except (subprocess.SubprocessError, FileNotFoundError):
@@ -77,9 +71,7 @@ class RenderHelper:
             for path in possible_paths:
                 if os.path.exists(path) and os.access(path, os.X_OK):
                     chromedriver_path = path
-                    self.logger.info(
-                        f"Found chromedriver at default location: {chromedriver_path}"
-                    )
+                    self.logger.info(f"Found chromedriver at default location: {chromedriver_path}")
                     break
 
             if not chromedriver_path:
@@ -99,9 +91,7 @@ class RenderHelper:
             driver.get_screenshot_as_file(self.currPath + "/dashboard.png")
             driver.get_screenshot_as_file(path_to_server_image)
             driver.quit()  # Make sure to quit the driver to free resources
-            self.logger.debug(
-                f"Screenshot captured and saved to file {path_to_server_image}."
-            )
+            self.logger.debug(f"Screenshot captured and saved to file {path_to_server_image}.")
         except Exception as e:
             self.logger.error(f"Error taking screenshot: {str(e)}")
             raise
@@ -140,15 +130,11 @@ class RenderHelper:
                 # Some clients set the location to empty string
                 if "location" in event and event["location"] != "":
                     cal_events_text += (
-                        '<span class="event-location"> at '
-                        + event["location"]
-                        + "</span>"
+                        '<span class="event-location"> at ' + event["location"] + "</span>"
                     )
                 if self.cfg.SHOW_CALENDAR_NAME and event["calendarName"] is not None:
                     cal_events_text += (
-                        '<span class="event-calendar-name"> ('
-                        + event["calendarName"]
-                        + ")</span>"
+                        '<span class="event-calendar-name"> (' + event["calendarName"] + ")</span>"
                     )
                 cal_events_text += "</div>\n"
             if d == current_date:
@@ -172,9 +158,7 @@ class RenderHelper:
         if self.cfg.SHOW_ADDITIONAL_WEATHER:
             additional_infos = []
             if round(current_weather["temp"]) != round(current_weather["feels_like"]):
-                additional_infos.append(
-                    f"Feels Like {round(current_weather['feels_like'])}°"
-                )
+                additional_infos.append(f"Feels Like {round(current_weather['feels_like'])}°")
             if (current_weather["sunrise"] < current_weather["dt"]) and (
                 current_weather["dt"] < current_weather["sunset"]
             ):
@@ -197,9 +181,7 @@ class RenderHelper:
                 cal_days=cal_events_days,
                 cal_days_events=cal_events_list,
                 # I'm choosing to show the forecast for the next hour instead of the current weather
-                current_weather_text=string.capwords(
-                    current_weather["weather"][0]["description"]
-                ),
+                current_weather_text=string.capwords(current_weather["weather"][0]["description"]),
                 current_weather_id=current_weather["weather"][0]["id"],
                 current_weather_temp=f"{round(current_weather['temp'])}°",
                 current_weather_add_info=weather_add_info,
@@ -242,9 +224,7 @@ class RenderHelper:
         return datetime_str
 
     @classmethod
-    def extend_list(
-        cls, my_list: List[str], new_length: int, default_value: str
-    ) -> None:
+    def extend_list(cls, my_list: List[str], new_length: int, default_value: str) -> None:
         return my_list.extend([default_value] * (new_length - len(my_list)))
 
     @classmethod
