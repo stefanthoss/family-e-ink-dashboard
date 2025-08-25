@@ -61,7 +61,7 @@ class TestRenderHelper:
             (dt.datetime(2024, 1, 1, 12, 0), "12:00"),
             (dt.datetime(2024, 1, 1, 23, 59), "23:59"),
             (dt.datetime(2024, 1, 1, 14, 5), "14:05"),
-        ]
+        ],
     )
     def test_get_short_time_24hour_format(self, datetime_obj, expected):
         """Test get_short_time with 24-hour format."""
@@ -85,7 +85,7 @@ class TestRenderHelper:
             (dt.datetime(2024, 1, 1, 13, 0), "1pm"),
             (dt.datetime(2024, 1, 1, 15, 20), "3:20pm"),
             (dt.datetime(2024, 1, 1, 23, 59), "11:59pm"),
-        ]
+        ],
     )
     def test_get_short_time_12hour_format(self, datetime_obj, expected):
         """Test get_short_time with 12-hour format."""
@@ -99,7 +99,7 @@ class TestRenderHelper:
             (dt.datetime(2024, 1, 1, 5, 0), "5am"),
             (dt.datetime(2024, 1, 1, 12, 0), "12pm"),
             (dt.datetime(2024, 1, 1, 18, 0), "6pm"),
-        ]
+        ],
     )
     def test_get_short_time_zero_minutes(self, datetime_obj, expected):
         """Test get_short_time when minutes are zero in 12-hour format."""

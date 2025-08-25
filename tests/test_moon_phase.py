@@ -19,7 +19,7 @@ class TestMoonPhase:
             (0.5, "wi-moon-full"),
             (0.75, "wi-moon-third-quarter"),
             (1.0, "wi-moon-new"),
-        ]
+        ],
     )
     def test_wi_moon_phase_boundary_values(self, value, expected):
         """Test moon phase with exact boundary values between phases."""
@@ -43,7 +43,7 @@ class TestMoonPhase:
             (0.751, "wi-moon-waning-crescent-1"),
             # Test values very close to 1.0
             (0.999, "wi-moon-waning-crescent-6"),
-        ]
+        ],
     )
     def test_wi_moon_phase_very_small_increments(self, value, expected):
         """Test moon phase with very small increments to verify calculation precision."""
@@ -76,7 +76,7 @@ class TestMoonPhase:
             (0.65, 4),  # Late waning gibbous
             (0.70, 5),  # Very late waning gibbous
             (0.74, 6),  # Just before third quarter
-        ]
+        ],
     )
     def test_wi_moon_phase_all_gibbous_numbers(self, value, expected_num):
         """Test that all gibbous phases produce valid numbers 1-6."""
@@ -93,7 +93,7 @@ class TestMoonPhase:
             (0.375, "wi-moon-waxing-gibbous-4"),  # 3/8
             (0.625, "wi-moon-waning-gibbous-4"),  # 5/8
             (0.875, "wi-moon-waning-crescent-4"),  # 7/8
-        ]
+        ],
     )
     def test_wi_moon_phase_mathematical_precision(self, value, expected):
         """Test moon phase calculation with mathematically precise values."""
