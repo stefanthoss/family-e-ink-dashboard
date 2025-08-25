@@ -34,8 +34,8 @@ class RenderHelper:
 
         # Extract the client window size from the html tag
         html = driver.find_element(By.TAG_NAME, "html")
-        inner_width = int(html.get_attribute("clientWidth"))
-        inner_height = int(html.get_attribute("clientHeight"))
+        inner_width = int(html.get_attribute("clientWidth") or "0")
+        inner_height = int(html.get_attribute("clientHeight") or "0")
 
         # "Internal width you want to set+Set "outer frame width" to window size
         target_width = self.cfg.IMAGE_WIDTH + (
@@ -105,24 +105,6 @@ class RenderHelper:
         except Exception as e:
             self.logger.error(f"Error taking screenshot: {str(e)}")
             raise
-
-    def get_short_time(self, datetimeObj: dt.datetime, is24hour: bool = False) -> str:
-        datetime_str = ""
-        if is24hour:
-            datetime_str = "{}:{:02d}".format(datetimeObj.hour, datetimeObj.minute)
-        else:
-            if datetimeObj.minute > 0:
-                datetime_str = ":{:02d}".format(datetimeObj.minute)
-
-            if datetimeObj.hour == 0:
-                datetime_str = "12{}am".format(datetime_str)
-            elif datetimeObj.hour == 12:
-                datetime_str = "12{}pm".format(datetime_str)
-            elif datetimeObj.hour > 12:
-                datetime_str = "{}{}pm".format(str(datetimeObj.hour % 12), datetime_str)
-            else:
-                datetime_str = "{}{}am".format(str(datetimeObj.hour), datetime_str)
-        return datetime_str
 
     def process_inputs(
         self,
@@ -240,12 +222,33 @@ class RenderHelper:
 
         self.get_screenshot(path_to_server_image)
 
+    @classmethod
+    def get_short_time(cls, datetimeObj: dt.datetime, is24hour: bool = False) -> str:
+        datetime_str = ""
+        if is24hour:
+            datetime_str = "{}:{:02d}".format(datetimeObj.hour, datetimeObj.minute)
+        else:
+            if datetimeObj.minute > 0:
+                datetime_str = ":{:02d}".format(datetimeObj.minute)
+
+            if datetimeObj.hour == 0:
+                datetime_str = "12{}am".format(datetime_str)
+            elif datetimeObj.hour == 12:
+                datetime_str = "12{}pm".format(datetime_str)
+            elif datetimeObj.hour > 12:
+                datetime_str = "{}{}pm".format(str(datetimeObj.hour % 12), datetime_str)
+            else:
+                datetime_str = "{}{}am".format(str(datetimeObj.hour), datetime_str)
+        return datetime_str
+
+    @classmethod
     def extend_list(
-        self, my_list: List[str], new_length: int, default_value: str
+        cls, my_list: List[str], new_length: int, default_value: str
     ) -> None:
         return my_list.extend([default_value] * (new_length - len(my_list)))
 
-    def wi_moon_phase(self, value: float) -> str:
+    @classmethod
+    def wi_moon_phase(cls, value: float) -> str:
         """
         This function translates a number representing the phase of the moon as returned by the
         OpenWeatherMap API into the equivalent Weather Icon name. The input value should be between
