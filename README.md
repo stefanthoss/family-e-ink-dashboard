@@ -77,6 +77,8 @@ WEATHER_UNITS | No | metric | Units of measurement for the temperature, `metric`
 
 ## Development
 
+This project uses Poetry for package management and Ruff for linting and formatting.
+
 Run
 
 ```shell
@@ -90,6 +92,13 @@ docker compose -f docker-compose.dev.yml up --build
 ```
 
 locally to start the application, API docs will be served at <http://localhost:5000/docs>.
+
+### Linting & Formatting
+
+```shell
+poetry run ruff check --fix
+poetry run ruff format
+```
 
 ## Acknowledgements
 
