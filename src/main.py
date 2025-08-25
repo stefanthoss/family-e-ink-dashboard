@@ -7,7 +7,7 @@ CSS stylesheet.
 import datetime as dt
 import tempfile
 import time
-from typing import Any, Dict
+from typing import Any, Dict, List, Tuple
 
 import pytz
 import structlog
@@ -59,13 +59,21 @@ def get_image() -> FileResponse:
         days=cfg.NUM_CAL_DAYS_TO_QUERY, seconds=-1
     )
 
-    events = calModule.get_events(
+    events: List[Tuple[dt.date, List[Dict[str, Any]]]] = calModule.get_events(
         cfg.ICS_URL,
         calStartDatetime,
         calEndDatetime,
         cfg.DISPLAY_TZ,
         cfg.NUM_CAL_DAYS_TO_QUERY,
     )
+
+    # Remove today's past events
+    for idx, (event_date, event_list) in enumerate(events):
+        if event_date == currTime.date():
+            event_list[:] = [e for e in event_list if e["endDatetime"] >= currTime]
+            if not event_list:
+                events.pop(idx)
+            break
 
     end_time = time.time()
     logger.info(
@@ -85,7 +93,7 @@ def get_image() -> FileResponse:
             current_weather,
             hourly_forecast,
             daily_forecast,
-            events[: cfg.NUM_CAL_DAYS_TO_QUERY],
+            events,
             tf.name,
         )
 
