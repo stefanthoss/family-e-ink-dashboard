@@ -3,7 +3,7 @@ This is where we retrieve events from an ICS calendar.
 """
 
 import datetime as dt
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List
 
 import icalendar
 import pytz
@@ -66,7 +66,7 @@ class IcsModule:
                     )
                     new_event["endDatetime"] = local_timezone.localize(
                         dt.datetime.combine(event_end, dt.time(0, 0))
-                    ) - dt.timedelta(minutes=1)
+                    ) - dt.timedelta(seconds=1)
                 else:
                     raise TypeError(f"Unknown type {type(event_start)} for DTSTART")
 
@@ -108,31 +108,33 @@ class IcsModule:
         calEndDatetime: dt.datetime,
         displayTZ: str,
     ) -> Dict[dt.date, List[Dict[str, Any]]]:
-        eventList = self._retrieve_events(
-            ics_url, calStartDatetime, calEndDatetime, displayTZ
-        )
+        eventList = self._retrieve_events(ics_url, calStartDatetime, calEndDatetime, displayTZ)
 
         calDict: Dict[dt.date, List[Dict[str, Any]]] = {}
 
         for event in eventList:
             if event["isMultiday"]:
-                num_days_event = (event["endDatetime"].date() - event["startDatetime"].date()).days
-                for day in range(0, num_days_event + 1):
+                start_date = event["startDatetime"].date()
+                end_date = event["endDatetime"].date()
+                current_date = start_date
+                while current_date <= end_date:
                     event_day = event.copy()
-                    current_date = event["startDatetime"].date() + dt.timedelta(days=day)
+                    if current_date < end_date:
+                        event_day["endDatetime"] = dt.datetime.combine(
+                            current_date, dt.time(23, 59, 59)
+                        )
+                    else:
+                        event_day["endDatetime"] = event["endDatetime"]
 
-                    if current_date >= calStartDatetime.date():
-                        # Set start time to midnight for subsequent days of a multiday event
-                        if current_date > event["startDatetime"].date():
-                            event_day["startDatetime"] = event_day["startDatetime"].replace(
-                                year=current_date.year,
-                                month=current_date.month,
-                                day=current_date.day,
-                                hour=0, minute=0, second=0, microsecond=0
-                            )
-                            event_day["allday"] = True
+                    if current_date > start_date:
+                        event_day["startDatetime"] = dt.datetime.combine(
+                            current_date, dt.time(0, 0, 0)
+                        )
+                    else:
+                        event_day["startDatetime"] = event["startDatetime"]
 
-                        calDict.setdefault(current_date, []).append(event_day)
+                    calDict.setdefault(current_date, []).append(event_day)
+                    current_date += dt.timedelta(days=1)
             else:
                 calDict.setdefault(event["startDatetime"].date(), []).append(event)
 
