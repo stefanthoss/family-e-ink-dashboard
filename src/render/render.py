@@ -96,7 +96,6 @@ class RenderHelper:
             self.logger.error(f"Error taking screenshot: {str(e)}")
             raise
 
-
     def process_inputs(
         self,
         current_time: dt.datetime,

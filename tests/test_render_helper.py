@@ -11,6 +11,7 @@ from render.render import RenderHelper
 
 class HourMockConfig:
     """12/24 hour mock configuration for testing."""
+
     def __init__(self, use_24h_format=True):
         self.USE_24H_FORMAT = use_24h_format
 
