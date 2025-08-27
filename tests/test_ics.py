@@ -30,8 +30,8 @@ def ics_module():
                 {
                     "summary": "Test Event 1",
                     "location": "Test Location 1",
-                    "startDatetime": dt.datetime(2024, 8, 27, 10, 0),
-                    "endDatetime": dt.datetime(2024, 8, 27, 11, 0),
+                    "startDatetime": dt.datetime(2024, 8, 27, 10, 0, 0),
+                    "endDatetime": dt.datetime(2024, 8, 27, 11, 0, 0),
                     "isMultiday": False,
                     "allday": False,
                     "calendarName": "Work",
@@ -42,10 +42,10 @@ def ics_module():
                     {
                         "summary": "Test Event 1",
                         "location": "Test Location 1",
-                        "allday": False,
+                        "startDatetime": dt.datetime(2024, 8, 27, 10, 0, 0),
+                        "endDatetime": dt.datetime(2024, 8, 27, 11, 0, 0),
                         "isMultiday": False,
-                        "startDatetime": dt.datetime(2024, 8, 27, 10, 0),
-                        "endDatetime": dt.datetime(2024, 8, 27, 11, 0),
+                        "allday": False,
                         "calendarName": "Work",
                     }
                 ]
@@ -57,8 +57,8 @@ def ics_module():
                 {
                     "summary": "Multi-day Event",
                     "location": "Conference Center",
-                    "startDatetime": dt.datetime(2024, 8, 28, 16, 0),
-                    "endDatetime": dt.datetime(2024, 8, 29, 12, 0),
+                    "startDatetime": dt.datetime(2024, 8, 28, 16, 0, 0),
+                    "endDatetime": dt.datetime(2024, 8, 29, 12, 0, 0),
                     "isMultiday": True,
                     "allday": False,
                     "calendarName": "Personal",
@@ -69,10 +69,10 @@ def ics_module():
                     {
                         "summary": "Multi-day Event",
                         "location": "Conference Center",
-                        "allday": False,
+                        "startDatetime": dt.datetime(2024, 8, 28, 16, 0, 0),
+                        "endDatetime": dt.datetime(2024, 8, 28, 23, 59, 59),
                         "isMultiday": True,
-                        "startDatetime": dt.datetime(2024, 8, 28, 16, 0),
-                        "endDatetime": dt.datetime(2024, 8, 29, 12, 0),
+                        "allday": False,
                         "calendarName": "Personal",
                     }
                 ],
@@ -80,10 +80,10 @@ def ics_module():
                     {
                         "summary": "Multi-day Event",
                         "location": "Conference Center",
-                        "allday": False,
+                        "startDatetime": dt.datetime(2024, 8, 29, 0, 0, 0),
+                        "endDatetime": dt.datetime(2024, 8, 29, 12, 0, 0),
                         "isMultiday": True,
-                        "startDatetime": dt.datetime(2024, 8, 29, 0, 0),
-                        "endDatetime": dt.datetime(2024, 8, 29, 12, 0),
+                        "allday": False,
                         "calendarName": "Personal",
                     }
                 ],
@@ -94,8 +94,8 @@ def ics_module():
             [
                 {
                     "summary": "All-day Event",
-                    "startDatetime": dt.datetime(2024, 8, 30, 0, 0),
-                    "endDatetime": dt.datetime(2024, 8, 30, 23, 59),
+                    "startDatetime": dt.datetime(2024, 8, 30, 0, 0, 0),
+                    "endDatetime": dt.datetime(2024, 8, 30, 23, 59, 59),
                     "isMultiday": False,
                     "allday": True,
                     "calendarName": "Family",
@@ -105,11 +105,11 @@ def ics_module():
                 dt.date(2024, 8, 30): [
                     {
                         "summary": "All-day Event",
+                        "startDatetime": dt.datetime(2024, 8, 30, 0, 0, 0),
+                        "endDatetime": dt.datetime(2024, 8, 30, 23, 59, 59),
+                        "isMultiday": False,
                         "allday": True,
                         "calendarName": "Family",
-                        "startDatetime": dt.datetime(2024, 8, 30, 0, 0),
-                        "endDatetime": dt.datetime(2024, 8, 30, 23, 59),
-                        "isMultiday": False,
                     }
                 ]
             },
@@ -129,9 +129,9 @@ def test_get_events(
     mock_retrieve_events.return_value = mock_events
 
     ics_url = "https://example.com/calendar.ics"
-    cal_start = dt.datetime(2024, 8, 27, 0, 0)
-    cal_end = dt.datetime(2024, 8, 31, 0, 0)
-    display_tz = "UTC"
+    cal_start = dt.datetime(2024, 8, 27, 0, 0, 0)
+    cal_end = dt.datetime(2024, 8, 31, 0, 0, 0)
+    display_tz = "Europe/Berlin"
 
     events_by_day = ics_module.get_events(ics_url, cal_start, cal_end, display_tz)
 
