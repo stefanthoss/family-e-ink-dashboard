@@ -62,7 +62,6 @@ def get_image() -> FileResponse:
         calStartDatetime,
         calEndDatetime,
         cfg.DISPLAY_TZ,
-        cfg.NUM_CAL_DAYS_TO_QUERY,
     )
 
     # Remove today's past events
