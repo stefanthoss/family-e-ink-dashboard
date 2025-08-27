@@ -209,7 +209,7 @@ class RenderHelper:
         if self.cfg.USE_24H_FORMAT:
             return datetimeObj.strftime("%H:%M")
         else:
-            return datetimeObj.strftime("%I:%M%p")
+            return datetimeObj.strftime("%I:%M%p").replace(":00", "")
 
     @classmethod
     def extend_list(cls, my_list: List[str], new_length: int, default_value: str) -> None:

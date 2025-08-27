@@ -9,8 +9,22 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 from render.render import RenderHelper
 
 
+class HourMockConfig:
+    """12/24 hour mock configuration for testing."""
+    def __init__(self, use_24h_format=True):
+        self.USE_24H_FORMAT = use_24h_format
+
+
 class TestRenderHelper:
     """Test suite for RenderHelper class methods."""
+
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.cfg_24h = HourMockConfig(use_24h_format=True)
+        self.render_helper_24h = RenderHelper(self.cfg_24h)
+
+        self.cfg_12h = HourMockConfig(use_24h_format=False)
+        self.render_helper_12h = RenderHelper(self.cfg_12h)
 
     def test_extend_list_shorter_list(self):
         """Test extend_list when list is shorter than target length."""
@@ -63,9 +77,9 @@ class TestRenderHelper:
             (dt.datetime(2024, 1, 1, 14, 5), "14:05"),
         ],
     )
-    def test_get_short_time_24hour_format(self, datetime_obj, expected):
-        """Test get_short_time with 24-hour format."""
-        result = RenderHelper.get_short_time(datetime_obj, is24hour=True)
+    def test_format_time_24hour_format(self, datetime_obj, expected):
+        """Test format_time with 24-hour format."""
+        result = self.render_helper_24h.format_time(datetime_obj)
         assert result == expected
 
     @pytest.mark.parametrize(
@@ -87,9 +101,9 @@ class TestRenderHelper:
             (dt.datetime(2024, 1, 1, 23, 59), "11:59pm"),
         ],
     )
-    def test_get_short_time_12hour_format(self, datetime_obj, expected):
-        """Test get_short_time with 12-hour format."""
-        result = RenderHelper.get_short_time(datetime_obj, is24hour=False)
+    def test_format_time_12hour_format(self, datetime_obj, expected):
+        """Test format_time with 12-hour format."""
+        result = self.render_helper_12h.format_time(datetime_obj)
         assert result == expected
 
     @pytest.mark.parametrize(
@@ -101,7 +115,7 @@ class TestRenderHelper:
             (dt.datetime(2024, 1, 1, 18, 0), "6pm"),
         ],
     )
-    def test_get_short_time_zero_minutes(self, datetime_obj, expected):
-        """Test get_short_time when minutes are zero in 12-hour format."""
-        result = RenderHelper.get_short_time(datetime_obj, is24hour=False)
+    def test_format_time_zero_minutes(self, datetime_obj, expected):
+        """Test format_time when minutes are zero in 12-hour format."""
+        result = self.render_helper_12h.format_time(datetime_obj)
         assert result == expected
