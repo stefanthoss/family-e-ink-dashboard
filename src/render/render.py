@@ -96,6 +96,7 @@ class RenderHelper:
             self.logger.error(f"Error taking screenshot: {str(e)}")
             raise
 
+
     def process_inputs(
         self,
         current_time: dt.datetime,
@@ -204,8 +205,7 @@ class RenderHelper:
 
         self.get_screenshot(path_to_server_image)
 
-    @classmethod
-    def format_time(cls, datetimeObj: dt.datetime) -> str:
+    def format_time(self, datetimeObj: dt.datetime) -> str:
         if self.cfg.USE_24H_FORMAT:
             return datetimeObj.strftime("%H:%M")
         else:
