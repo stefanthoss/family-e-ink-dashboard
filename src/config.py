@@ -39,14 +39,15 @@ class DashboardConfig:
         self.SHOW_ADDITIONAL_WEATHER: bool = (
             os.getenv("SHOW_ADDITIONAL_WEATHER", "False").lower() == "true"
         )
-        self.SHOW_MOON_PHASE: bool = (
-            os.getenv("SHOW_MOON_PHASE", "False").lower() == "true"
-        )
         self.SHOW_CALENDAR_NAME: bool = (
             os.getenv("SHOW_CALENDAR_NAME", "False").lower() == "true"
         )
+        self.SHOW_MOON_PHASE: bool = (
+            os.getenv("SHOW_MOON_PHASE", "False").lower() == "true"
+        )
         self.USE_24H_FORMAT: bool = (os.getenv("USE_24H_FORMAT", "True").lower() == "true")
         self.WEATHER_UNITS: WeatherUnits = WeatherUnits[os.getenv("WEATHER_UNITS", "metric")]
+
 
     @classmethod
     def get_config(cls) -> "DashboardConfig":

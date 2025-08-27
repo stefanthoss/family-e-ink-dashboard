@@ -7,7 +7,7 @@ CSS stylesheet.
 import datetime as dt
 import tempfile
 import time
-from typing import Any, Dict
+from typing import Any, Dict, List, Tuple
 
 import pytz
 import structlog
@@ -55,11 +55,9 @@ def get_image() -> FileResponse:
 
     currTime = dt.datetime.now(pytz.timezone(cfg.DISPLAY_TZ))
     calStartDatetime = currTime.replace(hour=0, minute=0, second=0, microsecond=0)
-    calEndDatetime = calStartDatetime + dt.timedelta(
-        days=cfg.NUM_CAL_DAYS_TO_QUERY, seconds=-1
-    )
+    calEndDatetime = calStartDatetime + dt.timedelta(days=cfg.NUM_CAL_DAYS_TO_QUERY, seconds=-1)
 
-    events = calModule.get_events(
+    events: List[Tuple[dt.date, List[Dict[str, Any]]]] = calModule.get_events(
         cfg.ICS_URL,
         calStartDatetime,
         calEndDatetime,
@@ -67,15 +65,19 @@ def get_image() -> FileResponse:
         cfg.NUM_CAL_DAYS_TO_QUERY,
     )
 
+    # Remove today's past events
+    for idx, (event_date, event_list) in enumerate(events):
+        if event_date == currTime.date():
+            event_list[:] = [e for e in event_list if e["endDatetime"] >= currTime]
+            if not event_list:
+                events.pop(idx)
+            break
+
     end_time = time.time()
-    logger.info(
-        f"Completed data retrieval in {round(end_time - start_time, 3)} seconds."
-    )
+    logger.info(f"Completed data retrieval in {round(end_time - start_time, 3)} seconds.")
 
     # TODO: delete=False leads to accumulating temporary files in /tmp but is currently needed because the FileResponse is async.
-    with tempfile.NamedTemporaryFile(
-        suffix=".png", delete_on_close=False, delete=False
-    ) as tf:
+    with tempfile.NamedTemporaryFile(suffix=".png", delete_on_close=False, delete=False) as tf:
         start_time = time.time()
         logger.info("Generating image...")
 
@@ -85,7 +87,7 @@ def get_image() -> FileResponse:
             current_weather,
             hourly_forecast,
             daily_forecast,
-            events[: cfg.NUM_CAL_DAYS_TO_QUERY],
+            events,
             tf.name,
         )
 

@@ -21,13 +21,21 @@ uvicorn = "^0.34.1"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.12.10"
+pytest = "^8.4.1"
+pytest-mock = "^3.14.1"
+pytest-cov = "^6.2.1"
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E712"]
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests"
+]
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.black]
-line-length = 100
-
-[tool.isort]
-profile = "black"

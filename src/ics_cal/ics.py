@@ -31,9 +31,7 @@ class IcsModule:
 
         for event in eventList:
             if event["isMultiday"]:
-                numDays = (
-                    event["endDatetime"].date() - event["startDatetime"].date()
-                ).days
+                numDays = (event["endDatetime"].date() - event["startDatetime"].date()).days
                 for day in range(0, numDays + 1):
                     event_day = event.copy()
                     if day > 0:
@@ -43,9 +41,7 @@ class IcsModule:
                         ) + dt.timedelta(days=day)
                         event_day["allday"] = True
 
-                    calDict.setdefault(event_day["startDatetime"].date(), []).append(
-                        event_day
-                    )
+                    calDict.setdefault(event_day["startDatetime"].date(), []).append(event_day)
             else:
                 calDict.setdefault(event["startDatetime"].date(), []).append(event)
 
