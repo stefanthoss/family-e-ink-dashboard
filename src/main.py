@@ -53,8 +53,8 @@ def get_image() -> FileResponse:
         cfg.LAT, cfg.LNG, cfg.OWM_API_KEY, cfg.WEATHER_UNITS
     )
 
-    pytz_tz = pytz.timezone(cfg.DISPLAY_TZ)
-    currTime = dt.datetime.now(pytz_tz)
+    local_timezone = pytz.timezone(cfg.DISPLAY_TZ)
+    currTime = dt.datetime.now(local_timezone)
     calStartDatetime = currTime.replace(hour=0, minute=0, second=0, microsecond=0)
     calEndDatetime = calStartDatetime + dt.timedelta(days=cfg.NUM_CAL_DAYS_TO_QUERY, seconds=-1)
 
@@ -72,7 +72,7 @@ def get_image() -> FileResponse:
         for e in events[today]:
             end_datetime = e["endDatetime"]
             if end_datetime.tzinfo is None:
-                end_datetime = pytz_tz.localize(end_datetime)
+                end_datetime = local_timezone.localize(end_datetime)
             if end_datetime >= currTime:
                 filtered_events.append(e)
         if filtered_events:
