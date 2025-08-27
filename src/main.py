@@ -55,9 +55,7 @@ def get_image() -> FileResponse:
 
     currTime = dt.datetime.now(pytz.timezone(cfg.DISPLAY_TZ))
     calStartDatetime = currTime.replace(hour=0, minute=0, second=0, microsecond=0)
-    calEndDatetime = calStartDatetime + dt.timedelta(
-        days=cfg.NUM_CAL_DAYS_TO_QUERY, seconds=-1
-    )
+    calEndDatetime = calStartDatetime + dt.timedelta(days=cfg.NUM_CAL_DAYS_TO_QUERY, seconds=-1)
 
     events: List[Tuple[dt.date, List[Dict[str, Any]]]] = calModule.get_events(
         cfg.ICS_URL,
@@ -76,14 +74,10 @@ def get_image() -> FileResponse:
             break
 
     end_time = time.time()
-    logger.info(
-        f"Completed data retrieval in {round(end_time - start_time, 3)} seconds."
-    )
+    logger.info(f"Completed data retrieval in {round(end_time - start_time, 3)} seconds.")
 
     # TODO: delete=False leads to accumulating temporary files in /tmp but is currently needed because the FileResponse is async.
-    with tempfile.NamedTemporaryFile(
-        suffix=".png", delete_on_close=False, delete=False
-    ) as tf:
+    with tempfile.NamedTemporaryFile(suffix=".png", delete_on_close=False, delete=False) as tf:
         start_time = time.time()
         logger.info("Generating image...")
 

@@ -36,18 +36,12 @@ class DashboardConfig:
         self.NUM_CAL_DAYS_TO_QUERY: int = int(os.getenv("NUM_CAL_DAYS_TO_QUERY", "30"))
         self.IMAGE_WIDTH: int = int(os.getenv("IMAGE_WIDTH", "1200"))
         self.IMAGE_HEIGHT: int = int(os.getenv("IMAGE_HEIGHT", "825"))
-        self.WEATHER_UNITS: WeatherUnits = WeatherUnits[
-            os.getenv("WEATHER_UNITS", "metric")
-        ]
+        self.WEATHER_UNITS: WeatherUnits = WeatherUnits[os.getenv("WEATHER_UNITS", "metric")]
         self.SHOW_ADDITIONAL_WEATHER: bool = (
             os.getenv("SHOW_ADDITIONAL_WEATHER", "False").lower() == "true"
         )
-        self.SHOW_MOON_PHASE: bool = (
-            os.getenv("SHOW_MOON_PHASE", "False").lower() == "true"
-        )
-        self.SHOW_CALENDAR_NAME: bool = (
-            os.getenv("SHOW_CALENDAR_NAME", "False").lower() == "true"
-        )
+        self.SHOW_MOON_PHASE: bool = os.getenv("SHOW_MOON_PHASE", "False").lower() == "true"
+        self.SHOW_CALENDAR_NAME: bool = os.getenv("SHOW_CALENDAR_NAME", "False").lower() == "true"
 
     @classmethod
     def get_config(cls) -> "DashboardConfig":
