@@ -62,10 +62,10 @@ class IcsModule:
                     new_event["allday"] = True
                     # Convert date into datetime at midnight
                     new_event["startDatetime"] = local_timezone.localize(
-                        dt.datetime.combine(event_start, dt.time(0, 0))
+                        dt.datetime.combine(event_start, dt.time(0, 0, 0))
                     )
                     new_event["endDatetime"] = local_timezone.localize(
-                        dt.datetime.combine(event_end, dt.time(0, 0))
+                        dt.datetime.combine(event_end, dt.time(0, 0, 0))
                     ) - dt.timedelta(seconds=1)
                 else:
                     raise TypeError(f"Unknown type {type(event_start)} for DTSTART")

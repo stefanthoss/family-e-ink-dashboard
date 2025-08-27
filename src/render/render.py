@@ -9,7 +9,7 @@ import pathlib
 import string
 import subprocess
 from time import sleep
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List
 
 import structlog
 from jinja2 import Environment, FileSystemLoader
@@ -102,7 +102,7 @@ class RenderHelper:
         current_weather: Dict[str, Any],
         hourly_forecast: List[Dict[str, Any]],
         daily_forecast: List[Dict[str, Any]],
-        events: List[Tuple[dt.date, List[Dict[str, Any]]]],
+        events: Dict[dt.date, List[Dict[str, Any]]],
         path_to_server_image: str,
     ) -> None:
         # Read html template
@@ -114,7 +114,7 @@ class RenderHelper:
         # Populate the date and events
         cal_events_days: List[str] = []
         cal_events_list: List[str] = []
-        for d, e in events:
+        for d, e in events.items():
             cal_events_text = ""
             for event in e:
                 cal_events_text += '<div class="event">'
