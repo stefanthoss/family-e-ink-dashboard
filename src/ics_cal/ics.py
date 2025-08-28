@@ -55,11 +55,9 @@ class IcsModule:
                 event_end = event.get("DTEND").dt
 
                 if isinstance(event_start, dt.datetime):
-                    new_event["allday"] = False
                     new_event["startDatetime"] = event_start.astimezone(local_timezone)
                     new_event["endDatetime"] = event_end.astimezone(local_timezone)
                 elif isinstance(event_start, dt.date):
-                    new_event["allday"] = True
                     # Convert date into datetime at midnight
                     new_event["startDatetime"] = local_timezone.localize(
                         dt.datetime.combine(event_start, dt.time(0, 0, 0))
@@ -97,9 +95,6 @@ class IcsModule:
 
         calDict: Dict[dt.date, List[Dict[str, Any]]] = {}
 
-        for x in eventList:
-            self.logger.info(f" Event list item: {x}")
-
         for event in eventList:
             if event["isMultiday"]:
                 start_date = event["startDatetime"].date()
@@ -125,8 +120,5 @@ class IcsModule:
                     current_date += dt.timedelta(days=1)
             else:
                 calDict.setdefault(event["startDatetime"].date(), []).append(event)
-
-        for x, y in calDict.items():
-            self.logger.info(f" {x} Raw event: {y}")
 
         return calDict

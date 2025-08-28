@@ -34,7 +34,6 @@ def ics_module():
                     "startDatetime": dt.datetime(2024, 8, 27, 10, 0, 0),
                     "endDatetime": dt.datetime(2024, 8, 27, 11, 0, 0),
                     "isMultiday": False,
-                    "allday": False,
                     "calendarName": "Work",
                 }
             ],
@@ -46,7 +45,6 @@ def ics_module():
                         "startDatetime": dt.datetime(2024, 8, 27, 10, 0, 0),
                         "endDatetime": dt.datetime(2024, 8, 27, 11, 0, 0),
                         "isMultiday": False,
-                        "allday": False,
                         "calendarName": "Work",
                     }
                 ]
@@ -61,7 +59,6 @@ def ics_module():
                     "startDatetime": dt.datetime(2024, 8, 28, 16, 0, 0),
                     "endDatetime": dt.datetime(2024, 8, 29, 12, 0, 0),
                     "isMultiday": True,
-                    "allday": False,
                     "calendarName": "Personal",
                 }
             ],
@@ -73,7 +70,6 @@ def ics_module():
                         "startDatetime": dt.datetime(2024, 8, 28, 16, 0, 0),
                         "endDatetime": dt.datetime(2024, 8, 28, 23, 59, 59),
                         "isMultiday": True,
-                        "allday": False,
                         "calendarName": "Personal",
                     }
                 ],
@@ -84,7 +80,6 @@ def ics_module():
                         "startDatetime": dt.datetime(2024, 8, 29, 0, 0, 0),
                         "endDatetime": dt.datetime(2024, 8, 29, 12, 0, 0),
                         "isMultiday": True,
-                        "allday": False,
                         "calendarName": "Personal",
                     }
                 ],
@@ -99,7 +94,6 @@ def ics_module():
                     "startDatetime": dt.datetime(2024, 8, 28, 23, 0, 0),
                     "endDatetime": dt.datetime(2024, 8, 29, 0, 30, 0),
                     "isMultiday": True,
-                    "allday": False,
                     "calendarName": "Personal",
                 }
             ],
@@ -111,7 +105,6 @@ def ics_module():
                         "startDatetime": dt.datetime(2024, 8, 28, 23, 0, 0),
                         "endDatetime": dt.datetime(2024, 8, 28, 23, 59, 59),
                         "isMultiday": True,
-                        "allday": False,
                         "calendarName": "Personal",
                     }
                 ],
@@ -122,7 +115,6 @@ def ics_module():
                         "startDatetime": dt.datetime(2024, 8, 29, 0, 0, 0),
                         "endDatetime": dt.datetime(2024, 8, 29, 0, 30, 0),
                         "isMultiday": True,
-                        "allday": False,
                         "calendarName": "Personal",
                     }
                 ],
@@ -136,7 +128,6 @@ def ics_module():
                     "startDatetime": dt.datetime(2024, 8, 30, 0, 0, 0),
                     "endDatetime": dt.datetime(2024, 8, 30, 23, 59, 59),
                     "isMultiday": False,
-                    "allday": True,
                     "calendarName": "Family",
                 }
             ],
@@ -147,7 +138,6 @@ def ics_module():
                         "startDatetime": dt.datetime(2024, 8, 30, 0, 0, 0),
                         "endDatetime": dt.datetime(2024, 8, 30, 23, 59, 59),
                         "isMultiday": False,
-                        "allday": True,
                         "calendarName": "Family",
                     }
                 ]
@@ -200,7 +190,6 @@ END:VCALENDAR""",
                     "location": "Test Location 1",
                     "startDatetime": dt.datetime(2024, 8, 27, 10, 0, 0, tzinfo=dt.timezone.utc),
                     "endDatetime": dt.datetime(2024, 8, 27, 11, 0, 0, tzinfo=dt.timezone.utc),
-                    "allday": False,
                     "isMultiday": False,
                     "calendarName": "Work Calendar",
                 }
@@ -223,7 +212,6 @@ END:VCALENDAR""",
                     "summary": "All-day Event",
                     "startDatetime": dt.datetime(2024, 8, 27, 0, 0, 0, tzinfo=dt.timezone.utc),
                     "endDatetime": dt.datetime(2024, 8, 27, 23, 59, 59, tzinfo=dt.timezone.utc),
-                    "allday": True,
                     "isMultiday": False,
                     "calendarName": None,
                 }
@@ -246,7 +234,6 @@ END:VCALENDAR""",
                     "summary": "Multi-day Event",
                     "startDatetime": dt.datetime(2024, 8, 27, 16, 0, 0, tzinfo=dt.timezone.utc),
                     "endDatetime": dt.datetime(2024, 8, 29, 12, 0, 0, tzinfo=dt.timezone.utc),
-                    "allday": False,
                     "isMultiday": True,
                     "calendarName": None,
                 }
@@ -272,7 +259,6 @@ END:VCALENDAR""",
                     "location": "Dive Bar",
                     "startDatetime": dt.datetime(2024, 8, 28, 22, 0, 0, tzinfo=dt.timezone.utc),
                     "endDatetime": dt.datetime(2024, 8, 29, 0, 30, 0, tzinfo=dt.timezone.utc),
-                    "allday": False,
                     "isMultiday": True,
                     "calendarName": "Personal",
                 }
@@ -296,7 +282,6 @@ END:VCALENDAR""",
                     "summary": "Recurring Event",
                     "startDatetime": dt.datetime(2024, 8, 27, 10, 0, 0, tzinfo=dt.timezone.utc),
                     "endDatetime": dt.datetime(2024, 8, 27, 11, 0, 0, tzinfo=dt.timezone.utc),
-                    "allday": False,
                     "isMultiday": False,
                     "calendarName": None,
                 },
@@ -304,7 +289,6 @@ END:VCALENDAR""",
                     "summary": "Recurring Event",
                     "startDatetime": dt.datetime(2024, 8, 28, 10, 0, 0, tzinfo=dt.timezone.utc),
                     "endDatetime": dt.datetime(2024, 8, 28, 11, 0, 0, tzinfo=dt.timezone.utc),
-                    "allday": False,
                     "isMultiday": False,
                     "calendarName": None,
                 },
@@ -335,7 +319,6 @@ END:VCALENDAR""",
                     "summary": "No Location Event",
                     "startDatetime": dt.datetime(2024, 8, 27, 14, 0, 0, tzinfo=dt.timezone.utc),
                     "endDatetime": dt.datetime(2024, 8, 27, 15, 0, 0, tzinfo=dt.timezone.utc),
-                    "allday": False,
                     "isMultiday": False,
                     "calendarName": None,
                 }

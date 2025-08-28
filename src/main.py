@@ -77,9 +77,6 @@ def get_image() -> FileResponse:
         else:
             del events[today]
 
-    for x, y in events.items():
-        logger.info(f" {x} Aft event: {y}")
-
     end_time = time.time()
     logger.info(f"Completed data retrieval in {round(end_time - start_time, 3)} seconds.")
 
