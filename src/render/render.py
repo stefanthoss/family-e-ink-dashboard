@@ -123,7 +123,7 @@ class RenderHelper:
                 else:
                     cal_events_text += (
                         '<span class="event-time">'
-                        + self.get_short_time(event["startDatetime"])
+                        + self.format_time(event["startDatetime"])
                         + "</span> "
                         + event["summary"]
                     )
@@ -173,7 +173,7 @@ class RenderHelper:
         htmlFile = open(self.currPath + "/dashboard.html", "w")
         htmlFile.write(
             dashboard_template.render(
-                update_time=f"{current_time.strftime('%B %-d')}, {self.get_short_time(current_time)}",
+                update_time=f"{current_time.strftime('%B %-d')}, {self.format_time(current_time)}",
                 day=current_date.strftime("%-d"),
                 month=current_date.strftime("%B"),
                 weekday=current_date.strftime("%A"),
@@ -204,24 +204,11 @@ class RenderHelper:
 
         self.get_screenshot(path_to_server_image)
 
-    @classmethod
-    def get_short_time(cls, datetimeObj: dt.datetime, is24hour: bool = False) -> str:
-        datetime_str = ""
-        if is24hour:
-            datetime_str = "{}:{:02d}".format(datetimeObj.hour, datetimeObj.minute)
+    def format_time(self, datetimeObj: dt.datetime) -> str:
+        if self.cfg.USE_24H_FORMAT:
+            return datetimeObj.strftime("%H:%M")
         else:
-            if datetimeObj.minute > 0:
-                datetime_str = ":{:02d}".format(datetimeObj.minute)
-
-            if datetimeObj.hour == 0:
-                datetime_str = "12{}am".format(datetime_str)
-            elif datetimeObj.hour == 12:
-                datetime_str = "12{}pm".format(datetime_str)
-            elif datetimeObj.hour > 12:
-                datetime_str = "{}{}pm".format(str(datetimeObj.hour % 12), datetime_str)
-            else:
-                datetime_str = "{}{}am".format(str(datetimeObj.hour), datetime_str)
-        return datetime_str
+            return datetimeObj.strftime("%-I:%M%p").replace(":00", "").lower()
 
     @classmethod
     def extend_list(cls, my_list: List[str], new_length: int, default_value: str) -> None:

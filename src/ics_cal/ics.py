@@ -86,21 +86,6 @@ class IcsModule:
 
         return sorted(event_list, key=lambda k: k["startDatetime"])
 
-    def get_short_time(self, datetimeObj: dt.datetime) -> str:
-        datetime_str = ""
-        if datetimeObj.minute > 0:
-            datetime_str = ".{:02d}".format(datetimeObj.minute)
-
-        if datetimeObj.hour == 0:
-            datetime_str = "12{}am".format(datetime_str)
-        elif datetimeObj.hour == 12:
-            datetime_str = "12{}pm".format(datetime_str)
-        elif datetimeObj.hour > 12:
-            datetime_str = "{}{}pm".format(str(datetimeObj.hour % 12), datetime_str)
-        else:
-            datetime_str = "{}{}am".format(str(datetimeObj.hour), datetime_str)
-        return datetime_str
-
     def get_events(
         self,
         ics_url: str,
