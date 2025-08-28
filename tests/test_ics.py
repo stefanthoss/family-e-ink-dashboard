@@ -25,7 +25,7 @@ def ics_module():
 @pytest.mark.parametrize(
     "mock_events, expected_events_by_day",
     [
-        # Test case 1: Single day event
+        # Single day event
         (
             [
                 {
@@ -52,7 +52,7 @@ def ics_module():
                 ]
             },
         ),
-        # Test case 2: Multi-day event spanning two days
+        # Multi-day event spanning two days
         (
             [
                 {
@@ -90,7 +90,45 @@ def ics_module():
                 ],
             },
         ),
-        # Test case 3: All-day event
+        # Short event crossing midnight
+        (
+            [
+                {
+                    "summary": "Cross-midnight Event",
+                    "location": "Dive Bar",
+                    "startDatetime": dt.datetime(2024, 8, 28, 23, 0, 0),
+                    "endDatetime": dt.datetime(2024, 8, 29, 0, 30, 0),
+                    "isMultiday": True,
+                    "allday": False,
+                    "calendarName": "Personal",
+                }
+            ],
+            {
+                dt.date(2024, 8, 28): [
+                    {
+                        "summary": "Cross-midnight Event",
+                        "location": "Dive Bar",
+                        "startDatetime": dt.datetime(2024, 8, 28, 23, 0, 0),
+                        "endDatetime": dt.datetime(2024, 8, 28, 23, 59, 59),
+                        "isMultiday": True,
+                        "allday": False,
+                        "calendarName": "Personal",
+                    }
+                ],
+                dt.date(2024, 8, 29): [
+                    {
+                        "summary": "Cross-midnight Event",
+                        "location": "Dive Bar",
+                        "startDatetime": dt.datetime(2024, 8, 29, 0, 0, 0),
+                        "endDatetime": dt.datetime(2024, 8, 29, 0, 30, 0),
+                        "isMultiday": True,
+                        "allday": False,
+                        "calendarName": "Personal",
+                    }
+                ],
+            },
+        ),
+        # All-day event
         (
             [
                 {
@@ -115,7 +153,7 @@ def ics_module():
                 ]
             },
         ),
-        # Test case 4: No events
+        # No events
         ([], {}),
     ],
 )
@@ -142,7 +180,7 @@ def test_get_events(
 @pytest.mark.parametrize(
     "ics_content, expected_events",
     [
-        # Test case 1: Single timed event
+        # Single timed event
         (
             """BEGIN:VCALENDAR
 VERSION:2.0
@@ -168,7 +206,7 @@ END:VCALENDAR""",
                 }
             ],
         ),
-        # Test case 2: All-day event
+        # All-day event
         (
             """BEGIN:VCALENDAR
 VERSION:2.0
@@ -191,7 +229,7 @@ END:VCALENDAR""",
                 }
             ],
         ),
-        # Test case 3: Multi-day event
+        # Multi-day event
         (
             """BEGIN:VCALENDAR
 VERSION:2.0
@@ -214,7 +252,33 @@ END:VCALENDAR""",
                 }
             ],
         ),
-        # Test case 4: Recurring event (daily for 2 days)
+        # Short event crossing midnight
+        (
+            """BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Test Calendar//EN
+X-WR-CALNAME:Personal
+BEGIN:VEVENT
+DTSTART:20240828T220000Z
+DTEND:20240829T003000Z
+SUMMARY:Cross-midnight Event
+LOCATION:Dive Bar
+UID:12345
+END:VEVENT
+END:VCALENDAR""",
+            [
+                {
+                    "summary": "Cross-midnight Event",
+                    "location": "Dive Bar",
+                    "startDatetime": dt.datetime(2024, 8, 28, 22, 0, 0, tzinfo=dt.timezone.utc),
+                    "endDatetime": dt.datetime(2024, 8, 29, 0, 30, 0, tzinfo=dt.timezone.utc),
+                    "allday": False,
+                    "isMultiday": True,
+                    "calendarName": "Personal",
+                }
+            ],
+        ),
+        # Recurring event (daily for 2 days)
         (
             """BEGIN:VCALENDAR
 VERSION:2.0
@@ -246,7 +310,7 @@ END:VCALENDAR""",
                 },
             ],
         ),
-        # Test case 5: No events (empty calendar)
+        # No events (empty calendar)
         (
             """BEGIN:VCALENDAR
 VERSION:2.0
@@ -254,7 +318,7 @@ PRODID:-//Test Calendar//EN
 END:VCALENDAR""",
             [],
         ),
-        # Test case 6: Event without location
+        # Event without location
         (
             """BEGIN:VCALENDAR
 VERSION:2.0

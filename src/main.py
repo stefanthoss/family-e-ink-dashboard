@@ -59,10 +59,7 @@ def get_image() -> FileResponse:
     calEndDatetime = calStartDatetime + dt.timedelta(days=cfg.NUM_CAL_DAYS_TO_QUERY, seconds=-1)
 
     events: Dict[dt.date, List[Dict[str, Any]]] = calModule.get_events(
-        cfg.ICS_URL,
-        calStartDatetime,
-        calEndDatetime,
-        cfg.DISPLAY_TZ,
+        cfg.ICS_URL, calStartDatetime, calEndDatetime, cfg.DISPLAY_TZ
     )
 
     # Remove today's past events
@@ -79,6 +76,9 @@ def get_image() -> FileResponse:
             events[today] = filtered_events
         else:
             del events[today]
+
+    for x, y in events.items():
+        logger.info(f" {x} Aft event: {y}")
 
     end_time = time.time()
     logger.info(f"Completed data retrieval in {round(end_time - start_time, 3)} seconds.")

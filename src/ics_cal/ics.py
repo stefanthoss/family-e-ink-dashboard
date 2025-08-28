@@ -71,8 +71,8 @@ class IcsModule:
                     raise TypeError(f"Unknown type {type(event_start)} for DTSTART")
 
                 new_event["isMultiday"] = (
-                    new_event["endDatetime"] - new_event["startDatetime"]
-                ) > dt.timedelta(days=1)
+                    new_event["startDatetime"].date() != new_event["endDatetime"].date()
+                )
 
                 if (
                     new_event["endDatetime"] >= calStartDatetime
@@ -96,6 +96,9 @@ class IcsModule:
         eventList = self._retrieve_events(ics_url, calStartDatetime, calEndDatetime, displayTZ)
 
         calDict: Dict[dt.date, List[Dict[str, Any]]] = {}
+
+        for x in eventList:
+            self.logger.info(f" Event list item: {x}")
 
         for event in eventList:
             if event["isMultiday"]:
@@ -122,5 +125,8 @@ class IcsModule:
                     current_date += dt.timedelta(days=1)
             else:
                 calDict.setdefault(event["startDatetime"].date(), []).append(event)
+
+        for x, y in calDict.items():
+            self.logger.info(f" {x} Raw event: {y}")
 
         return calDict

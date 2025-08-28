@@ -118,7 +118,7 @@ class RenderHelper:
             cal_events_text = ""
             for event in e:
                 cal_events_text += '<div class="event">'
-                if event["allday"]:
+                if event["allday"] or event["startDatetime"].time() == dt.time(0, 0, 0):
                     cal_events_text += event["summary"]
                 else:
                     cal_events_text += (
