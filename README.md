@@ -1,5 +1,9 @@
 # Family E-Ink Dashboard
 
+[![Docker](https://github.com/stefanthoss/family-e-ink-dashboard/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/stefanthoss/family-e-ink-dashboard/actions/workflows/docker-publish.yml)
+[![Ruff](https://github.com/stefanthoss/family-e-ink-dashboard/actions/workflows/ruff.yml/badge.svg)](https://github.com/stefanthoss/family-e-ink-dashboard/actions/workflows/ruff.yml)
+[![Tests](https://github.com/stefanthoss/family-e-ink-dashboard/actions/workflows/tests.yml/badge.svg)](https://github.com/stefanthoss/family-e-ink-dashboard/actions/workflows/tests.yml)
+
 This project contains code to build a battery-powered E-Ink dashboard for the entire family based on an Inkplate 10. It shows weather from OpenWeatherMap and a calendar feed which are rendered in a Docker container that runs somewhere in your home network. It started as a fork of the great [MagInkDash](https://github.com/speedyg0nz/MagInkDash) but the codebase has changed quite a bit since then.
 
 ![Dashboard Example](docs/dashboard-example.png)

@@ -7,7 +7,7 @@ CSS stylesheet.
 import datetime as dt
 import tempfile
 import time
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List
 
 import pytz
 import structlog
@@ -53,25 +53,29 @@ def get_image() -> FileResponse:
         cfg.LAT, cfg.LNG, cfg.OWM_API_KEY, cfg.WEATHER_UNITS
     )
 
-    currTime = dt.datetime.now(pytz.timezone(cfg.DISPLAY_TZ))
+    local_timezone = pytz.timezone(cfg.DISPLAY_TZ)
+    currTime = dt.datetime.now(local_timezone)
     calStartDatetime = currTime.replace(hour=0, minute=0, second=0, microsecond=0)
     calEndDatetime = calStartDatetime + dt.timedelta(days=cfg.NUM_CAL_DAYS_TO_QUERY, seconds=-1)
 
-    events: List[Tuple[dt.date, List[Dict[str, Any]]]] = calModule.get_events(
-        cfg.ICS_URL,
-        calStartDatetime,
-        calEndDatetime,
-        cfg.DISPLAY_TZ,
-        cfg.NUM_CAL_DAYS_TO_QUERY,
+    events: Dict[dt.date, List[Dict[str, Any]]] = calModule.get_events(
+        cfg.ICS_URL, calStartDatetime, calEndDatetime, cfg.DISPLAY_TZ
     )
 
     # Remove today's past events
-    for idx, (event_date, event_list) in enumerate(events):
-        if event_date == currTime.date():
-            event_list[:] = [e for e in event_list if e["endDatetime"] >= currTime]
-            if not event_list:
-                events.pop(idx)
-            break
+    today = currTime.date()
+    if today in events:
+        filtered_events = []
+        for e in events[today]:
+            end_datetime = e["endDatetime"]
+            if end_datetime.tzinfo is None:
+                end_datetime = local_timezone.localize(end_datetime)
+            if end_datetime >= currTime:
+                filtered_events.append(e)
+        if filtered_events:
+            events[today] = filtered_events
+        else:
+            del events[today]
 
     end_time = time.time()
     logger.info(f"Completed data retrieval in {round(end_time - start_time, 3)} seconds.")
