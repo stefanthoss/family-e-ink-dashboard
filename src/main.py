@@ -7,6 +7,7 @@ CSS stylesheet.
 import datetime as dt
 import tempfile
 import time
+from pathlib import Path
 from typing import Any, Dict, List
 
 import pytz
@@ -21,8 +22,9 @@ from owm.owm import OwmModule
 from render.render import RenderHelper
 
 cfg = DashboardConfig.get_config()
+BACKGROUND_IMAGE_PATH = Path(__file__).resolve().parent / "render" / "background.png"
 
-app = FastAPI(title="Family E-Ink Dashboard Server", version="0.10.0")
+app = FastAPI(title="Family E-Ink Dashboard Server", version="0.10.1")
 
 logger = structlog.get_logger()
 
@@ -40,7 +42,7 @@ def health_check() -> Dict[str, Any]:
     summary="Background image for testing",
 )
 def get_background() -> FileResponse:
-    return FileResponse("src/render/background.png", media_type="image/png")
+    return FileResponse(str(BACKGROUND_IMAGE_PATH), media_type="image/png")
 
 
 @app.get("/image", summary="Rendered dashboard image")
