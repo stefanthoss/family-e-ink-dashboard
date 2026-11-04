@@ -13,11 +13,11 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Run Ruff check
-        uses: astral-sh/ruff-action@v4
+        uses: astral-sh/ruff-action@v4.1.0
         with:
           args: "check --diff"
 
       - name: Run Ruff format
-        uses: astral-sh/ruff-action@v4
+        uses: astral-sh/ruff-action@v4.1.0
         with:
           args: "format --check --diff"
