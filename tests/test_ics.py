@@ -188,8 +188,8 @@ END:VCALENDAR""",
                 {
                     "summary": "Test Event 1",
                     "location": "Test Location 1",
-                    "startDatetime": dt.datetime(2024, 8, 27, 10, 0, 0, tzinfo=dt.timezone.utc),
-                    "endDatetime": dt.datetime(2024, 8, 27, 11, 0, 0, tzinfo=dt.timezone.utc),
+                    "startDatetime": dt.datetime(2024, 8, 27, 10, 0, 0, tzinfo=dt.UTC),
+                    "endDatetime": dt.datetime(2024, 8, 27, 11, 0, 0, tzinfo=dt.UTC),
                     "isMultiday": False,
                     "calendarName": "Work Calendar",
                 }
@@ -210,8 +210,8 @@ END:VCALENDAR""",
             [
                 {
                     "summary": "All-day Event",
-                    "startDatetime": dt.datetime(2024, 8, 27, 0, 0, 0, tzinfo=dt.timezone.utc),
-                    "endDatetime": dt.datetime(2024, 8, 27, 23, 59, 59, tzinfo=dt.timezone.utc),
+                    "startDatetime": dt.datetime(2024, 8, 27, 0, 0, 0, tzinfo=dt.UTC),
+                    "endDatetime": dt.datetime(2024, 8, 27, 23, 59, 59, tzinfo=dt.UTC),
                     "isMultiday": False,
                     "calendarName": None,
                 }
@@ -232,8 +232,8 @@ END:VCALENDAR""",
             [
                 {
                     "summary": "Multi-day Event",
-                    "startDatetime": dt.datetime(2024, 8, 27, 16, 0, 0, tzinfo=dt.timezone.utc),
-                    "endDatetime": dt.datetime(2024, 8, 29, 12, 0, 0, tzinfo=dt.timezone.utc),
+                    "startDatetime": dt.datetime(2024, 8, 27, 16, 0, 0, tzinfo=dt.UTC),
+                    "endDatetime": dt.datetime(2024, 8, 29, 12, 0, 0, tzinfo=dt.UTC),
                     "isMultiday": True,
                     "calendarName": None,
                 }
@@ -257,8 +257,8 @@ END:VCALENDAR""",
                 {
                     "summary": "Cross-midnight Event",
                     "location": "Dive Bar",
-                    "startDatetime": dt.datetime(2024, 8, 28, 22, 0, 0, tzinfo=dt.timezone.utc),
-                    "endDatetime": dt.datetime(2024, 8, 29, 0, 30, 0, tzinfo=dt.timezone.utc),
+                    "startDatetime": dt.datetime(2024, 8, 28, 22, 0, 0, tzinfo=dt.UTC),
+                    "endDatetime": dt.datetime(2024, 8, 29, 0, 30, 0, tzinfo=dt.UTC),
                     "isMultiday": True,
                     "calendarName": "Personal",
                 }
@@ -280,15 +280,15 @@ END:VCALENDAR""",
             [
                 {
                     "summary": "Recurring Event",
-                    "startDatetime": dt.datetime(2024, 8, 27, 10, 0, 0, tzinfo=dt.timezone.utc),
-                    "endDatetime": dt.datetime(2024, 8, 27, 11, 0, 0, tzinfo=dt.timezone.utc),
+                    "startDatetime": dt.datetime(2024, 8, 27, 10, 0, 0, tzinfo=dt.UTC),
+                    "endDatetime": dt.datetime(2024, 8, 27, 11, 0, 0, tzinfo=dt.UTC),
                     "isMultiday": False,
                     "calendarName": None,
                 },
                 {
                     "summary": "Recurring Event",
-                    "startDatetime": dt.datetime(2024, 8, 28, 10, 0, 0, tzinfo=dt.timezone.utc),
-                    "endDatetime": dt.datetime(2024, 8, 28, 11, 0, 0, tzinfo=dt.timezone.utc),
+                    "startDatetime": dt.datetime(2024, 8, 28, 10, 0, 0, tzinfo=dt.UTC),
+                    "endDatetime": dt.datetime(2024, 8, 28, 11, 0, 0, tzinfo=dt.UTC),
                     "isMultiday": False,
                     "calendarName": None,
                 },
@@ -317,8 +317,8 @@ END:VCALENDAR""",
             [
                 {
                     "summary": "No Location Event",
-                    "startDatetime": dt.datetime(2024, 8, 27, 14, 0, 0, tzinfo=dt.timezone.utc),
-                    "endDatetime": dt.datetime(2024, 8, 27, 15, 0, 0, tzinfo=dt.timezone.utc),
+                    "startDatetime": dt.datetime(2024, 8, 27, 14, 0, 0, tzinfo=dt.UTC),
+                    "endDatetime": dt.datetime(2024, 8, 27, 15, 0, 0, tzinfo=dt.UTC),
                     "isMultiday": False,
                     "calendarName": None,
                 }
@@ -334,8 +334,8 @@ def test_retrieve_events_success(mock_get, ics_module, ics_content, expected_eve
     mock_response.raise_for_status.return_value = None
     mock_get.return_value = mock_response
 
-    cal_start = dt.datetime(2024, 8, 27, 0, 0, 0, tzinfo=dt.timezone.utc)
-    cal_end = dt.datetime(2024, 8, 30, 0, 0, 0, tzinfo=dt.timezone.utc)
+    cal_start = dt.datetime(2024, 8, 27, 0, 0, 0, tzinfo=dt.UTC)
+    cal_end = dt.datetime(2024, 8, 30, 0, 0, 0, tzinfo=dt.UTC)
     display_tz = "UTC"
 
     events = ics_module._retrieve_events(
@@ -382,8 +382,8 @@ END:VCALENDAR"""
 
     mock_get.side_effect = responses
 
-    cal_start = dt.datetime(2024, 8, 27, 0, 0, 0, tzinfo=dt.timezone.utc)
-    cal_end = dt.datetime(2024, 8, 28, 0, 0, 0, tzinfo=dt.timezone.utc)
+    cal_start = dt.datetime(2024, 8, 27, 0, 0, 0, tzinfo=dt.UTC)
+    cal_end = dt.datetime(2024, 8, 28, 0, 0, 0, tzinfo=dt.UTC)
     display_tz = "UTC"
 
     # Test with pipe-separated URLs
@@ -416,8 +416,8 @@ END:VCALENDAR"""
     mock_response.raise_for_status.return_value = None
     mock_get.return_value = mock_response
 
-    cal_start = dt.datetime(2024, 8, 27, 0, 0, 0, tzinfo=dt.timezone.utc)
-    cal_end = dt.datetime(2024, 8, 28, 0, 0, 0, tzinfo=dt.timezone.utc)
+    cal_start = dt.datetime(2024, 8, 27, 0, 0, 0, tzinfo=dt.UTC)
+    cal_end = dt.datetime(2024, 8, 28, 0, 0, 0, tzinfo=dt.UTC)
     display_tz = "Europe/Berlin"  # UTC+2 in summer
 
     events = ics_module._retrieve_events(
@@ -466,8 +466,8 @@ END:VCALENDAR"""
     mock_get.return_value = mock_response
 
     # Set range to only include Aug 27-28
-    cal_start = dt.datetime(2024, 8, 27, 0, 0, 0, tzinfo=dt.timezone.utc)
-    cal_end = dt.datetime(2024, 8, 28, 23, 59, 59, tzinfo=dt.timezone.utc)
+    cal_start = dt.datetime(2024, 8, 27, 0, 0, 0, tzinfo=dt.UTC)
+    cal_end = dt.datetime(2024, 8, 28, 23, 59, 59, tzinfo=dt.UTC)
     display_tz = "UTC"
 
     events = ics_module._retrieve_events(

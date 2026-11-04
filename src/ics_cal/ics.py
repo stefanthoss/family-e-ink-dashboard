@@ -3,7 +3,7 @@ This is where we retrieve events from an ICS calendar.
 """
 
 import datetime as dt
-from typing import Any, Dict, List
+from typing import Any
 
 import icalendar
 import pytz
@@ -22,15 +22,15 @@ class IcsModule:
         calStartDatetime: dt.datetime,
         calEndDatetime: dt.datetime,
         localTZ: str,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         # Call the ICS calendar and return a list of events that fall within the specified dates
         event_list = []
 
         self.logger.info("Retrieving events from ICS...")
         ics_urls = ics_url.split("|")
-        for ics_url in ics_urls:
+        for single_url in ics_urls:
             try:
-                response = requests.get(ics_url, timeout=10)
+                response = requests.get(single_url, timeout=10)
                 response.raise_for_status()
                 cal = icalendar.Calendar.from_ical(response.text)
             except requests.exceptions.RequestException as e:
@@ -46,7 +46,7 @@ class IcsModule:
             local_timezone = pytz.timezone(localTZ)
 
             for event in events:
-                new_event: Dict[str, Any] = {"summary": str(event.get("SUMMARY"))}
+                new_event: dict[str, Any] = {"summary": str(event.get("SUMMARY"))}
 
                 if "LOCATION" in event:
                     new_event["location"] = str(event.get("LOCATION"))
@@ -90,10 +90,10 @@ class IcsModule:
         calStartDatetime: dt.datetime,
         calEndDatetime: dt.datetime,
         displayTZ: str,
-    ) -> Dict[dt.date, List[Dict[str, Any]]]:
+    ) -> dict[dt.date, list[dict[str, Any]]]:
         eventList = self._retrieve_events(ics_url, calStartDatetime, calEndDatetime, displayTZ)
 
-        calDict: Dict[dt.date, List[Dict[str, Any]]] = {}
+        calDict: dict[dt.date, list[dict[str, Any]]] = {}
 
         for event in eventList:
             if event["isMultiday"]:

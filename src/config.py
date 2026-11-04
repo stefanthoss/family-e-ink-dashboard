@@ -1,6 +1,5 @@
 import os
 import sys
-from typing import Optional
 
 import structlog
 
@@ -8,7 +7,7 @@ from owm.owm import WeatherUnits
 
 logger = structlog.get_logger()
 
-_current_config: Optional["DashboardConfig"] = None
+_current_config: DashboardConfig | None = None
 
 
 class DashboardConfig:
@@ -45,7 +44,7 @@ class DashboardConfig:
         self.WEATHER_UNITS: WeatherUnits = WeatherUnits[os.getenv("WEATHER_UNITS", "metric")]
 
     @classmethod
-    def get_config(cls) -> "DashboardConfig":
+    def get_config(cls) -> DashboardConfig:
         global _current_config
         if _current_config is None:
             _current_config = DashboardConfig()
