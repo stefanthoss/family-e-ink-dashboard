@@ -11,6 +11,8 @@ import recurring_ical_events
 import requests
 import structlog
 
+from redact import safe_url, status_of
+
 
 class IcsModule:
     def __init__(self) -> None:
@@ -27,17 +29,33 @@ class IcsModule:
         event_list = []
 
         self.logger.info("Retrieving events from ICS...")
-        ics_urls = ics_url.split("|")
-        for single_url in ics_urls:
+        ics_urls = [single_url.strip() for single_url in ics_url.split("|")]
+        ics_urls = [single_url for single_url in ics_urls if single_url]
+        feed_count = len(ics_urls)
+
+        for index, single_url in enumerate(ics_urls, start=1):
+            # Which feed we are on matters when one of several calendars breaks.
+            feed = f"{index}/{feed_count}"
             try:
                 response = requests.get(single_url, timeout=10)
                 response.raise_for_status()
                 cal = icalendar.Calendar.from_ical(response.text)
             except requests.exceptions.RequestException as e:
-                self.logger.error(f"Error downloading ICS: {e}")
+                # Not the exception message: requests quotes the full URL there, including the
+                # token and passphrase that unlock the calendar.
+                status = status_of(e)
+                detail = f"HTTP {status}" if status else type(e).__name__
+                self.logger.error(
+                    f"Error downloading ICS feed {feed} at {safe_url(single_url)}: {detail}"
+                )
                 continue
             except ValueError as e:
-                self.logger.error(f"Error parsing ICS: {e}")
+                # Not the message either: icalendar quotes the offending lines of the response,
+                # and a "this link has expired" page can quote the feed URL right back at us.
+                self.logger.error(
+                    f"Error parsing ICS feed {feed} at {safe_url(single_url)}: "
+                    f"{type(e).__name__} (message suppressed: it quotes calendar contents)"
+                )
                 continue
 
             cal_name = cal.get("X-WR-CALNAME", None)

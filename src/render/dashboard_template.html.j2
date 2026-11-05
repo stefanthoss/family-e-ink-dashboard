@@ -32,7 +32,7 @@
                     </div>
                     <div class="row align-items-start ">
                         <div class="col-md-12 text-center">
-                            <i class="wi wi-owm-{{ current_weather_id }}" style="font-size: 25rem"></i>
+                            <i class="wi {{ current_weather_icon }}" style="font-size: 25rem"></i>
                         </div>
                     </div>
                     <div class="row align-items-start ">
@@ -51,39 +51,39 @@
                         <div class="col-md-4">
                             <div class="row align-items-start ">
                                 <div class="col-md-12 text-center">
-                                    <i class="wi wi-owm-{{ today_weather_id }}" style="font-size: 10rem; color:gray"></i>
+                                    <i class="wi {{ today_weather_icon }}" style="font-size: 10rem; color:gray"></i>
                                 </div>
                             </div>
                             <div class="row align-items-start ">
                                 <div class="col-md-12 text-center">
                                     <h3>Today</h3>
-                                    <div class="weather-forecast">{{ today_weather_pop }}% | {{ today_weather_min }}-{{ today_weather_max }}°</div>
+                                    <div class="weather-forecast">{{ today_weather_summary }}</div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="row align-items-start ">
                                 <div class="col-md-12 text-center">
-                                    <i class="wi wi-owm-{{ tomorrow_weather_id }}" style="font-size: 10rem; color:gray"></i>
+                                    <i class="wi {{ tomorrow_weather_icon }}" style="font-size: 10rem; color:gray"></i>
                                 </div>
                             </div>
                             <div class="row align-items-start ">
                                 <div class="col-md-12 text-center">
                                     <h3>Tomorrow</h3>
-                                    <div class="weather-forecast">{{ tomorrow_weather_pop }}% | {{ tomorrow_weather_min }}-{{ tomorrow_weather_max }}°</div>
+                                    <div class="weather-forecast">{{ tomorrow_weather_summary }}</div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="row align-items-start ">
                                 <div class="col-md-12 text-center">
-                                    <i class="wi wi-owm-{{ dayafter_weather_id }}" style="font-size: 10rem; color:gray"></i>
+                                    <i class="wi {{ dayafter_weather_icon }}" style="font-size: 10rem; color:gray"></i>
                                 </div>
                             </div>
                             <div class="row align-items-start ">
                                 <div class="col-md-12 text-center">
                                     <h3>{{ dayaftertomorrow }}</h3>
-                                    <div class="weather-forecast">{{ dayafter_weather_pop }}% | {{ dayafter_weather_min }}-{{ dayafter_weather_max }}°</div>
+                                    <div class="weather-forecast">{{ dayafter_weather_summary }}</div>
                                 </div>
                             </div>
                         </div>
