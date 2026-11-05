@@ -9,7 +9,7 @@ import pathlib
 import string
 import subprocess
 from time import sleep
-from typing import Any, Dict, List
+from typing import Any
 
 import structlog
 from jinja2 import Environment, FileSystemLoader
@@ -59,7 +59,7 @@ class RenderHelper:
                 subprocess.check_output(["which", "chromedriver"]).decode("utf-8").strip()
             )
             self.logger.info(f"Found chromedriver at: {chromedriver_path}")
-        except (subprocess.SubprocessError, FileNotFoundError):
+        except subprocess.SubprocessError, FileNotFoundError:
             # Default paths to try if 'which' command fails
             possible_paths = [
                 "/usr/bin/chromedriver",
@@ -93,16 +93,16 @@ class RenderHelper:
             driver.quit()  # Make sure to quit the driver to free resources
             self.logger.debug(f"Screenshot captured and saved to file {path_to_server_image}.")
         except Exception as e:
-            self.logger.error(f"Error taking screenshot: {str(e)}")
+            self.logger.error(f"Error taking screenshot: {e!s}")
             raise
 
     def process_inputs(
         self,
         current_time: dt.datetime,
-        current_weather: Dict[str, Any],
-        hourly_forecast: List[Dict[str, Any]],
-        daily_forecast: List[Dict[str, Any]],
-        events: Dict[dt.date, List[Dict[str, Any]]],
+        current_weather: dict[str, Any],
+        hourly_forecast: list[dict[str, Any]],
+        daily_forecast: list[dict[str, Any]],
+        events: dict[dt.date, list[dict[str, Any]]],
         path_to_server_image: str,
     ) -> None:
         # Read html template
@@ -112,8 +112,8 @@ class RenderHelper:
         current_date = current_time.date()
 
         # Populate the date and events
-        cal_events_days: List[str] = []
-        cal_events_list: List[str] = []
+        cal_events_days: list[str] = []
+        cal_events_list: list[str] = []
         for d, e in events.items():
             cal_events_text = ""
             for event in e:
@@ -171,37 +171,38 @@ class RenderHelper:
             today_moon_phase = self.wi_moon_phase(daily_forecast[0]["moon_phase"])
 
         # Append the bottom and write the file
-        htmlFile = open(self.currPath + "/dashboard.html", "w")
-        htmlFile.write(
-            dashboard_template.render(
-                update_time=f"{current_time.strftime('%B %-d')}, {self.format_time(current_time)}",
-                day=current_date.strftime("%-d"),
-                month=current_date.strftime("%B"),
-                weekday=current_date.strftime("%A"),
-                dayaftertomorrow=(current_date + dt.timedelta(days=2)).strftime("%A"),
-                cal_days=cal_events_days,
-                cal_days_events=cal_events_list,
-                # I'm choosing to show the forecast for the next hour instead of the current weather
-                current_weather_text=string.capwords(current_weather["weather"][0]["description"]),
-                current_weather_id=current_weather["weather"][0]["id"],
-                current_weather_temp=f"{round(current_weather['temp'])}°",
-                current_weather_add_info=weather_add_info,
-                today_weather_id=daily_forecast[0]["weather"][0]["id"],
-                tomorrow_weather_id=daily_forecast[1]["weather"][0]["id"],
-                dayafter_weather_id=daily_forecast[2]["weather"][0]["id"],
-                today_weather_pop=str(round(daily_forecast[0]["pop"] * 100)),
-                tomorrow_weather_pop=str(round(daily_forecast[1]["pop"] * 100)),
-                dayafter_weather_pop=str(round(daily_forecast[2]["pop"] * 100)),
-                today_weather_min=str(round(daily_forecast[0]["temp"]["min"])),
-                tomorrow_weather_min=str(round(daily_forecast[1]["temp"]["min"])),
-                dayafter_weather_min=str(round(daily_forecast[2]["temp"]["min"])),
-                today_weather_max=str(round(daily_forecast[0]["temp"]["max"])),
-                tomorrow_weather_max=str(round(daily_forecast[1]["temp"]["max"])),
-                dayafter_weather_max=str(round(daily_forecast[2]["temp"]["max"])),
-                today_moon_phase=today_moon_phase,
+        with open(self.currPath + "/dashboard.html", "w") as htmlFile:
+            htmlFile.write(
+                dashboard_template.render(
+                    update_time=f"{current_time.strftime('%B %-d')}, {self.format_time(current_time)}",
+                    day=current_date.strftime("%-d"),
+                    month=current_date.strftime("%B"),
+                    weekday=current_date.strftime("%A"),
+                    dayaftertomorrow=(current_date + dt.timedelta(days=2)).strftime("%A"),
+                    cal_days=cal_events_days,
+                    cal_days_events=cal_events_list,
+                    # I'm choosing to show the forecast for the next hour instead of the current weather
+                    current_weather_text=string.capwords(
+                        current_weather["weather"][0]["description"]
+                    ),
+                    current_weather_id=current_weather["weather"][0]["id"],
+                    current_weather_temp=f"{round(current_weather['temp'])}°",
+                    current_weather_add_info=weather_add_info,
+                    today_weather_id=daily_forecast[0]["weather"][0]["id"],
+                    tomorrow_weather_id=daily_forecast[1]["weather"][0]["id"],
+                    dayafter_weather_id=daily_forecast[2]["weather"][0]["id"],
+                    today_weather_pop=str(round(daily_forecast[0]["pop"] * 100)),
+                    tomorrow_weather_pop=str(round(daily_forecast[1]["pop"] * 100)),
+                    dayafter_weather_pop=str(round(daily_forecast[2]["pop"] * 100)),
+                    today_weather_min=str(round(daily_forecast[0]["temp"]["min"])),
+                    tomorrow_weather_min=str(round(daily_forecast[1]["temp"]["min"])),
+                    dayafter_weather_min=str(round(daily_forecast[2]["temp"]["min"])),
+                    today_weather_max=str(round(daily_forecast[0]["temp"]["max"])),
+                    tomorrow_weather_max=str(round(daily_forecast[1]["temp"]["max"])),
+                    dayafter_weather_max=str(round(daily_forecast[2]["temp"]["max"])),
+                    today_moon_phase=today_moon_phase,
+                )
             )
-        )
-        htmlFile.close()
 
         self.get_screenshot(path_to_server_image)
 
@@ -212,7 +213,7 @@ class RenderHelper:
             return datetimeObj.strftime("%-I:%M%p").replace(":00", "").lower()
 
     @classmethod
-    def extend_list(cls, my_list: List[str], new_length: int, default_value: str) -> None:
+    def extend_list(cls, my_list: list[str], new_length: int, default_value: str) -> None:
         return my_list.extend([default_value] * (new_length - len(my_list)))
 
     @classmethod

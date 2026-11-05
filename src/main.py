@@ -8,7 +8,7 @@ import datetime as dt
 import tempfile
 import time
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import pytz
 import structlog
@@ -33,7 +33,7 @@ calModule = IcsModule()
 
 
 @app.get("/health")
-def health_check() -> Dict[str, Any]:
+def health_check() -> dict[str, Any]:
     return {"status": "ok"}
 
 
@@ -60,7 +60,7 @@ def get_image() -> FileResponse:
     calStartDatetime = currTime.replace(hour=0, minute=0, second=0, microsecond=0)
     calEndDatetime = calStartDatetime + dt.timedelta(days=cfg.NUM_CAL_DAYS_TO_QUERY, seconds=-1)
 
-    events: Dict[dt.date, List[Dict[str, Any]]] = calModule.get_events(
+    events: dict[dt.date, list[dict[str, Any]]] = calModule.get_events(
         cfg.ICS_URL, calStartDatetime, calEndDatetime, cfg.DISPLAY_TZ
     )
 

@@ -5,7 +5,7 @@ signed up for an OWM account and also obtained a valid API key that is specified
 
 import json
 from enum import Enum
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 import requests
 import structlog
@@ -22,8 +22,8 @@ class OwmModule:
 
     def get_owm_weather(
         self, lat: float, lon: float, api_key: str, units: WeatherUnits
-    ) -> Dict[str, Any]:
-        results: Dict[str, Any] = {}
+    ) -> dict[str, Any]:
+        results: dict[str, Any] = {}
 
         url = f"https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&appid={api_key}&exclude=minutely,alerts&units={units.value}"
         response = requests.get(url)
@@ -44,7 +44,7 @@ class OwmModule:
         lon: float,
         owm_api_key: str,
         units: WeatherUnits,
-    ) -> Tuple[Dict[str, Any], List[Dict[str, Any]], List[Dict[str, Any]]]:
+    ) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]]:
         weather_results = self.get_owm_weather(lat, lon, owm_api_key, units)
         current_weather = weather_results["current_weather"]
         hourly_forecast = weather_results["hourly_forecast"]

@@ -1,7 +1,8 @@
 import datetime as dt
-import pytest
-import sys
 import os
+import sys
+
+import pytest
 
 # Add the src directory to the path so we can import the modules
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
@@ -94,10 +95,8 @@ class TestRenderHelper:
             (dt.datetime(2024, 1, 1, 13, 0), "1pm"),
             (dt.datetime(2024, 1, 1, 15, 20), "3:20pm"),
             (dt.datetime(2024, 1, 1, 23, 59), "11:59pm"),
-            # Zero minutes cases
-            (dt.datetime(2024, 1, 1, 0, 0), "12am"),
+            # Zero minutes cases that the groups above do not cover yet
             (dt.datetime(2024, 1, 1, 5, 0), "5am"),
-            (dt.datetime(2024, 1, 1, 12, 0), "12pm"),
             (dt.datetime(2024, 1, 1, 18, 0), "6pm"),
         ],
     )
