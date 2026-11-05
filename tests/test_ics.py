@@ -9,6 +9,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 import pytz
+import requests
 
 # Add the src directory to the path so we can import the modules
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
@@ -476,3 +477,141 @@ END:VCALENDAR"""
 
     assert len(events) == 1
     assert events[0]["summary"] == "In Range"
+
+
+# Failure handling: a dead feed must not take the dashboard down, and a feed URL must never
+# reach the logs -- it contains the token and passphrase that unlock the calendar.
+
+SECRET_FEED_URL = (
+    "https://calendar.proton.me/api/calendar/v1/url/SECRETFEEDTOKEN/calendar.ics"
+    "?CacheKey=SECRETCACHEKEY%3D%3D&PassphraseKey=SECRETPASSPHRASE%3D"
+)
+SECRETS = ("SECRETFEEDTOKEN", "SECRETCACHEKEY", "SECRETPASSPHRASE")
+
+WORK_ICS = """BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Work//EN
+X-WR-CALNAME:Work
+BEGIN:VEVENT
+DTSTART:20240827T100000Z
+DTEND:20240827T110000Z
+SUMMARY:Work Event
+UID:work1
+END:VEVENT
+END:VCALENDAR"""
+
+CAL_START = dt.datetime(2024, 8, 27, 0, 0, 0, tzinfo=dt.UTC)
+CAL_END = dt.datetime(2024, 8, 28, 0, 0, 0, tzinfo=dt.UTC)
+
+
+def http_error(status_code: int, body: str, url: str = SECRET_FEED_URL):
+    """Build the kind of exception requests raises for an error response."""
+    response = requests.Response()
+    response.status_code = status_code
+    response._content = body.encode("utf-8")
+    response.url = url
+    response.reason = "Error"
+    return requests.exceptions.HTTPError(f"{status_code} Error", response=response)
+
+
+def calendar_response(ics_content: str = WORK_ICS):
+    response = MagicMock()
+    response.text = ics_content
+    response.raise_for_status.return_value = None
+    return response
+
+
+@patch("ics_cal.ics.requests.get")
+def test_revoked_feed_does_not_break_the_other_calendars(mock_get, ics_module):
+    """The reported case: one revoked Proton link next to a working calendar."""
+    mock_get.side_effect = [
+        http_error(422, '{"Code":2501,"Error":"Link not found","Details":{}}'),
+        calendar_response(),
+    ]
+
+    events = ics_module._retrieve_events(
+        f"{SECRET_FEED_URL}|https://example.com/work.ics", CAL_START, CAL_END, "UTC"
+    )
+
+    assert [event["summary"] for event in events] == ["Work Event"]
+
+
+@patch("ics_cal.ics.requests.get")
+def test_every_feed_failing_returns_no_events_instead_of_raising(mock_get, ics_module):
+    mock_get.side_effect = http_error(404, "no such calendar")
+
+    events = ics_module._retrieve_events(SECRET_FEED_URL, CAL_START, CAL_END, "UTC")
+
+    assert events == []
+
+
+@patch("ics_cal.ics.requests.get")
+def test_blank_url_entries_are_ignored(mock_get, ics_module):
+    mock_get.return_value = calendar_response()
+
+    events = ics_module._retrieve_events(f"  |{SECRET_FEED_URL}| ", CAL_START, CAL_END, "UTC")
+
+    assert len(events) == 1
+    assert mock_get.call_count == 1
+
+
+@patch("ics_cal.ics.requests.get")
+def test_unparsable_calendar_is_skipped_instead_of_raising(mock_get, ics_module):
+    """A share link that turned into a web page is reported, not crashed on."""
+    mock_get.return_value = calendar_response("<html><body>Link expired</body></html>")
+
+    events = ics_module._retrieve_events(SECRET_FEED_URL, CAL_START, CAL_END, "UTC")
+
+    assert events == []
+
+
+class TestLogMessagesDoNotLeakFeedSecrets:
+    @pytest.mark.parametrize(
+        "error",
+        [
+            http_error(422, '{"Code":2501,"Error":"Link not found"}'),
+            http_error(404, f"Calendar {SECRET_FEED_URL} does not exist"),
+            requests.exceptions.ConnectionError(
+                f"HTTPSConnectionPool(host='calendar.proton.me', port=443): "
+                f"Max retries exceeded with url: {SECRET_FEED_URL}"
+            ),
+            requests.exceptions.ReadTimeout(f"Read timed out. (read timeout=10) {SECRET_FEED_URL}"),
+            requests.exceptions.MissingSchema(f"Invalid URL {SECRET_FEED_URL}: no scheme"),
+        ],
+    )
+    @patch("ics_cal.ics.requests.get")
+    def test_download_failures(self, mock_get, ics_module, error):
+        mock_get.side_effect = error
+
+        with patch.object(ics_module, "logger") as mock_logger:
+            ics_module._retrieve_events(SECRET_FEED_URL, CAL_START, CAL_END, "UTC")
+
+        for call in mock_logger.method_calls:
+            for secret in SECRETS:
+                assert secret not in str(call)
+
+    @patch("ics_cal.ics.requests.get")
+    def test_parse_failures(self, mock_get, ics_module):
+        """An 'expired link' page can quote the feed URL back at us, and icalendar logs it."""
+        mock_get.return_value = calendar_response(
+            f"<html>This link has expired: {SECRET_FEED_URL}</html>"
+        )
+
+        with patch.object(ics_module, "logger") as mock_logger:
+            ics_module._retrieve_events(SECRET_FEED_URL, CAL_START, CAL_END, "UTC")
+
+        for call in mock_logger.method_calls:
+            for secret in SECRETS:
+                assert secret not in str(call)
+
+    @patch("ics_cal.ics.requests.get")
+    def test_logs_the_status_code_of_a_failing_feed(self, mock_get, ics_module):
+        mock_get.side_effect = http_error(422, '{"Code":2501,"Error":"Link not found"}')
+
+        with patch.object(ics_module, "logger") as mock_logger:
+            ics_module._retrieve_events(SECRET_FEED_URL, CAL_START, CAL_END, "UTC")
+
+        message = str(mock_logger.error.call_args)
+        assert "HTTP 422" in message
+        for secret in SECRETS:
+            assert secret not in message
