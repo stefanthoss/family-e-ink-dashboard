@@ -35,8 +35,16 @@ const char* IMG_URL = "https://url-to-your-server/image";
 #define BATTV_LOW 3.4  // voltage considered to be low battery
 
 #define SLEEP_MINUTES 60
+#define SLEEP_MINUTES_RETRY 15  // after a failed update, try again sooner
 
 Inkplate display(INKPLATE_1BIT);
+
+// Only a transient failure is worth retrying
+enum DownloadResult {
+    DOWNLOAD_OK,
+    DOWNLOAD_RETRY,
+    DOWNLOAD_FAILED,
+};
 
 // Appends to the boot log, which is never overwritten: text has a transparent background,
 // so printing spaces does not erase anything.
@@ -81,33 +89,34 @@ bool connectToWiFi() {
 }
 
 // Downloads IMG_URL into a buffer, which the caller owns and has to free on success
-bool downloadImage(uint8_t** buffer, int32_t* length) {
+DownloadResult downloadImage(uint8_t** buffer, int32_t* length) {
     HTTPClient http;
     http.setConnectTimeout(HTTP_CONNECT_TIMEOUT_MS);
     http.setTimeout(HTTP_READ_TIMEOUT_MS);  // the core takes a uint16_t here
 
     if (!http.begin(IMG_URL)) {
         Serial.println("HTTP: invalid image URL");
-        return false;
+        return DOWNLOAD_FAILED;
     }
 
     int httpCode = http.GET();
     if (httpCode != HTTP_CODE_OK) {
         Serial.printf("HTTP: request failed with code %d\n", httpCode);
-        return false;
+        // a 4xx will not fix itself, so do not burn the retry delays on it
+        return (httpCode >= 400 && httpCode < 500) ? DOWNLOAD_FAILED : DOWNLOAD_RETRY;
     }
 
     int32_t size = http.getSize();
     if (size <= 0) {
         Serial.println("HTTP: response has no content length");
-        return false;
+        return DOWNLOAD_RETRY;
     }
 
     uint8_t* image = (uint8_t*)ps_malloc(size);
     if (image == nullptr) image = (uint8_t*)malloc(size);
     if (image == nullptr) {
         Serial.printf("HTTP: out of memory for %d bytes\n", (int)size);
-        return false;
+        return DOWNLOAD_RETRY;
     }
 
     auto* stream = http.getStreamPtr();
@@ -136,12 +145,12 @@ bool downloadImage(uint8_t** buffer, int32_t* length) {
     if (received != size) {
         Serial.printf("HTTP: received %d of %d bytes\n", (int)received, (int)size);
         free(image);
-        return false;
+        return DOWNLOAD_RETRY;
     }
 
     *buffer = image;
     *length = size;
-    return true;
+    return DOWNLOAD_OK;
 }
 
 bool downloadAndDrawImage() {
@@ -159,7 +168,9 @@ bool downloadAndDrawImage() {
 
         uint8_t* buffer = nullptr;
         int32_t size = 0;
-        if (!downloadImage(&buffer, &size)) continue;
+        DownloadResult result = downloadImage(&buffer, &size);
+        if (result == DOWNLOAD_FAILED) break;
+        if (result == DOWNLOAD_RETRY) continue;
 
         display.selectDisplayMode(INKPLATE_3BIT);
         display.clearDisplay();
@@ -223,9 +234,11 @@ void setup() {
 
     display.display();
 
-    Serial.printf("Sleeping for %d minutes\n", SLEEP_MINUTES);
+    int sleepMinutes = imageShown ? SLEEP_MINUTES : SLEEP_MINUTES_RETRY;
+
+    Serial.printf("Sleeping for %d minutes\n", sleepMinutes);
     Serial.flush();
-    esp_sleep_enable_timer_wakeup((uint64_t)SLEEP_MINUTES * 60ULL * 1000000ULL);
+    esp_sleep_enable_timer_wakeup((uint64_t)sleepMinutes * 60ULL * 1000000ULL);
     esp_sleep_enable_ext0_wakeup(GPIO_NUM_36, LOW);  // gpio 36 is the wake button
     esp_deep_sleep_start();
 }
