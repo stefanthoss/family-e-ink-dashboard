@@ -103,6 +103,12 @@ docker compose -f docker-compose.dev.yml up --build
 
 locally to start the application, API docs will be served at <http://localhost:5000/docs>.
 
+The dev compose file reads all of its settings from `.env.dev`. Start from the example and fill it in:
+
+```shell
+cp .env.dev.example .env.dev
+```
+
 ### Testing
 
 ```shell
