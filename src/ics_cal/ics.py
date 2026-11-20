@@ -24,92 +24,101 @@ class IcsModule:
         calStartDatetime: dt.datetime,
         calEndDatetime: dt.datetime,
         localTZ: str,
+        prefix: str = "",
+        hides_location: bool = False,
+        feed_number: int = 1,
     ) -> list[dict[str, Any]]:
-        # Call the ICS calendar and return a list of events that fall within the specified dates
+        """The events of one calendar."""
         event_list = []
 
-        self.logger.info("Retrieving events from ICS...")
-        ics_urls = [single_url.strip() for single_url in ics_url.split("|")]
-        ics_urls = [single_url for single_url in ics_urls if single_url]
-        feed_count = len(ics_urls)
+        try:
+            response = requests.get(ics_url, timeout=10)
+            response.raise_for_status()
+            cal = icalendar.Calendar.from_ical(response.text)
+        except requests.exceptions.RequestException as e:
+            # Not the exception message: requests quotes the full URL there, including the
+            # token and passphrase that unlock the calendar.
+            status = status_of(e)
+            detail = f"HTTP {status}" if status else type(e).__name__
+            self.logger.error(
+                f"Error downloading ICS feed {feed_number} at {safe_url(ics_url)}: {detail}"
+            )
+            return []
+        except ValueError as e:
+            self.logger.error(
+                f"Error parsing ICS feed {feed_number} at {safe_url(ics_url)}: "
+                f"{type(e).__name__} (message suppressed: it quotes calendar contents)"
+            )
+            return []
 
-        for index, single_url in enumerate(ics_urls, start=1):
-            # Which feed we are on matters when one of several calendars breaks.
-            feed = f"{index}/{feed_count}"
-            try:
-                response = requests.get(single_url, timeout=10)
-                response.raise_for_status()
-                cal = icalendar.Calendar.from_ical(response.text)
-            except requests.exceptions.RequestException as e:
-                # Not the exception message: requests quotes the full URL there, including the
-                # token and passphrase that unlock the calendar.
-                status = status_of(e)
-                detail = f"HTTP {status}" if status else type(e).__name__
-                self.logger.error(
-                    f"Error downloading ICS feed {feed} at {safe_url(single_url)}: {detail}"
+        events = recurring_ical_events.of(cal).between(calStartDatetime, calEndDatetime)
+        local_timezone = pytz.timezone(localTZ)
+
+        for event in events:
+            new_event: dict[str, Any] = {"summary": f"{prefix}{event.get('SUMMARY')}"}
+
+            if "LOCATION" in event and not hides_location:
+                new_event["location"] = str(event.get("LOCATION"))
+
+            event_start = event.get("DTSTART").dt
+            event_end = event.get("DTEND").dt
+
+            if isinstance(event_start, dt.datetime):
+                new_event["startDatetime"] = event_start.astimezone(local_timezone)
+                new_event["endDatetime"] = event_end.astimezone(local_timezone)
+            elif isinstance(event_start, dt.date):
+                # Convert date into datetime at midnight
+                new_event["startDatetime"] = local_timezone.localize(
+                    dt.datetime.combine(event_start, dt.time(0, 0, 0))
                 )
-                continue
-            except ValueError as e:
-                # Not the message either: icalendar quotes the offending lines of the response,
-                # and a "this link has expired" page can quote the feed URL right back at us.
-                self.logger.error(
-                    f"Error parsing ICS feed {feed} at {safe_url(single_url)}: "
-                    f"{type(e).__name__} (message suppressed: it quotes calendar contents)"
-                )
-                continue
+                new_event["endDatetime"] = local_timezone.localize(
+                    dt.datetime.combine(event_end, dt.time(0, 0, 0))
+                ) - dt.timedelta(seconds=1)
+            else:
+                raise TypeError(f"Unknown type {type(event_start)} for DTSTART")
 
-            cal_name = cal.get("X-WR-CALNAME", None)
+            new_event["isMultiday"] = (
+                new_event["startDatetime"].date() != new_event["endDatetime"].date()
+            )
 
-            events = recurring_ical_events.of(cal).between(calStartDatetime, calEndDatetime)
-            local_timezone = pytz.timezone(localTZ)
-
-            for event in events:
-                new_event: dict[str, Any] = {"summary": str(event.get("SUMMARY"))}
-
-                if "LOCATION" in event:
-                    new_event["location"] = str(event.get("LOCATION"))
-
-                event_start = event.get("DTSTART").dt
-                event_end = event.get("DTEND").dt
-
-                if isinstance(event_start, dt.datetime):
-                    new_event["startDatetime"] = event_start.astimezone(local_timezone)
-                    new_event["endDatetime"] = event_end.astimezone(local_timezone)
-                elif isinstance(event_start, dt.date):
-                    # Convert date into datetime at midnight
-                    new_event["startDatetime"] = local_timezone.localize(
-                        dt.datetime.combine(event_start, dt.time(0, 0, 0))
-                    )
-                    new_event["endDatetime"] = local_timezone.localize(
-                        dt.datetime.combine(event_end, dt.time(0, 0, 0))
-                    ) - dt.timedelta(seconds=1)
-                else:
-                    raise TypeError(f"Unknown type {type(event_start)} for DTSTART")
-
-                new_event["isMultiday"] = (
-                    new_event["startDatetime"].date() != new_event["endDatetime"].date()
-                )
-
-                if (
-                    new_event["endDatetime"] >= calStartDatetime
-                    and new_event["startDatetime"] < calEndDatetime
-                ):
-                    # Don't show past days for ongoing multiday event
-                    new_event["startDatetime"] = max(new_event["startDatetime"], calStartDatetime)
-                    new_event["calendarName"] = cal_name
-
-                    event_list.append(new_event)
+            if (
+                new_event["endDatetime"] >= calStartDatetime
+                and new_event["startDatetime"] < calEndDatetime
+            ):
+                # Don't show past days for ongoing multiday event
+                new_event["startDatetime"] = max(new_event["startDatetime"], calStartDatetime)
+                event_list.append(new_event)
 
         return sorted(event_list, key=lambda k: k["startDatetime"])
 
     def get_events(
         self,
-        ics_url: str,
+        ics_urls: list[str],
         calStartDatetime: dt.datetime,
         calEndDatetime: dt.datetime,
         displayTZ: str,
+        prefixes: list[str] | None = None,
+        hide_locations: list[bool] | None = None,
     ) -> dict[dt.date, list[dict[str, Any]]]:
-        eventList = self._retrieve_events(ics_url, calStartDatetime, calEndDatetime, displayTZ)
+        """One round of _retrieve_events per feed: the three lists are aligned by index, so feed n
+        carries prefix n and the location setting of n."""
+        self.logger.info("Retrieving events from ICS...")
+
+        prefixes = prefixes or []
+        hide_locations = hide_locations or []
+
+        eventList: list[dict[str, Any]] = []
+        for index, single_url in enumerate(ics_urls, start=1):
+            eventList += self._retrieve_events(
+                single_url,
+                calStartDatetime,
+                calEndDatetime,
+                displayTZ,
+                prefixes[index - 1] if index <= len(prefixes) else "",
+                hide_locations[index - 1] if index <= len(hide_locations) else False,
+                index,
+            )
+        eventList.sort(key=lambda k: k["startDatetime"])
 
         calDict: dict[dt.date, list[dict[str, Any]]] = {}
 

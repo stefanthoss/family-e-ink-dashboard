@@ -158,12 +158,12 @@ def test_get_events(
     """Test get_events method with various scenarios."""
     mock_retrieve_events.return_value = mock_events
 
-    ics_url = "https://example.com/calendar.ics"
+    ics_urls = ["https://example.com/calendar.ics"]
     cal_start = dt.datetime(2024, 8, 27, 0, 0, 0)
     cal_end = dt.datetime(2024, 8, 31, 0, 0, 0)
     display_tz = "Europe/Berlin"
 
-    events_by_day = ics_module.get_events(ics_url, cal_start, cal_end, display_tz)
+    events_by_day = ics_module.get_events(ics_urls, cal_start, cal_end, display_tz)
 
     assert events_by_day == expected_events_by_day
 
@@ -192,7 +192,6 @@ END:VCALENDAR""",
                     "startDatetime": dt.datetime(2024, 8, 27, 10, 0, 0, tzinfo=dt.UTC),
                     "endDatetime": dt.datetime(2024, 8, 27, 11, 0, 0, tzinfo=dt.UTC),
                     "isMultiday": False,
-                    "calendarName": "Work Calendar",
                 }
             ],
         ),
@@ -214,7 +213,6 @@ END:VCALENDAR""",
                     "startDatetime": dt.datetime(2024, 8, 27, 0, 0, 0, tzinfo=dt.UTC),
                     "endDatetime": dt.datetime(2024, 8, 27, 23, 59, 59, tzinfo=dt.UTC),
                     "isMultiday": False,
-                    "calendarName": None,
                 }
             ],
         ),
@@ -236,7 +234,6 @@ END:VCALENDAR""",
                     "startDatetime": dt.datetime(2024, 8, 27, 16, 0, 0, tzinfo=dt.UTC),
                     "endDatetime": dt.datetime(2024, 8, 29, 12, 0, 0, tzinfo=dt.UTC),
                     "isMultiday": True,
-                    "calendarName": None,
                 }
             ],
         ),
@@ -261,7 +258,6 @@ END:VCALENDAR""",
                     "startDatetime": dt.datetime(2024, 8, 28, 22, 0, 0, tzinfo=dt.UTC),
                     "endDatetime": dt.datetime(2024, 8, 29, 0, 30, 0, tzinfo=dt.UTC),
                     "isMultiday": True,
-                    "calendarName": "Personal",
                 }
             ],
         ),
@@ -284,14 +280,12 @@ END:VCALENDAR""",
                     "startDatetime": dt.datetime(2024, 8, 27, 10, 0, 0, tzinfo=dt.UTC),
                     "endDatetime": dt.datetime(2024, 8, 27, 11, 0, 0, tzinfo=dt.UTC),
                     "isMultiday": False,
-                    "calendarName": None,
                 },
                 {
                     "summary": "Recurring Event",
                     "startDatetime": dt.datetime(2024, 8, 28, 10, 0, 0, tzinfo=dt.UTC),
                     "endDatetime": dt.datetime(2024, 8, 28, 11, 0, 0, tzinfo=dt.UTC),
                     "isMultiday": False,
-                    "calendarName": None,
                 },
             ],
         ),
@@ -321,7 +315,6 @@ END:VCALENDAR""",
                     "startDatetime": dt.datetime(2024, 8, 27, 14, 0, 0, tzinfo=dt.UTC),
                     "endDatetime": dt.datetime(2024, 8, 27, 15, 0, 0, tzinfo=dt.UTC),
                     "isMultiday": False,
-                    "calendarName": None,
                 }
             ],
         ),
@@ -387,17 +380,18 @@ END:VCALENDAR"""
     cal_end = dt.datetime(2024, 8, 28, 0, 0, 0, tzinfo=dt.UTC)
     display_tz = "UTC"
 
-    # Test with pipe-separated URLs
-    events = ics_module._retrieve_events(
-        "https://example.com/calendar.ics|http://work.com/cal.ics", cal_start, cal_end, display_tz
+    events_by_day = ics_module.get_events(
+        ["https://example.com/calendar.ics", "http://work.com/cal.ics"],
+        cal_start,
+        cal_end,
+        display_tz,
     )
+    events = [event for day in events_by_day.values() for event in day]
 
     assert len(events) == 2
     # Events should be sorted by start time
     assert events[0]["summary"] == "Work Event"
-    assert events[0]["calendarName"] == "Work"
     assert events[1]["summary"] == "Personal Event"
-    assert events[1]["calendarName"] == "Personal"
 
 
 @patch("ics_cal.ics.requests.get")
@@ -529,11 +523,14 @@ def test_revoked_feed_does_not_break_the_other_calendars(mock_get, ics_module):
         calendar_response(),
     ]
 
-    events = ics_module._retrieve_events(
-        f"{SECRET_FEED_URL}|https://example.com/work.ics", CAL_START, CAL_END, "UTC"
-    )
+    with patch.object(ics_module, "logger") as mock_logger:
+        events_by_day = ics_module.get_events(
+            [SECRET_FEED_URL, "https://example.com/work.ics"], CAL_START, CAL_END, "UTC"
+        )
+    events = [event for day in events_by_day.values() for event in day]
 
     assert [event["summary"] for event in events] == ["Work Event"]
+    assert "ICS feed 1 at" in str(mock_logger.error.call_args)
 
 
 @patch("ics_cal.ics.requests.get")
@@ -543,16 +540,6 @@ def test_every_feed_failing_returns_no_events_instead_of_raising(mock_get, ics_m
     events = ics_module._retrieve_events(SECRET_FEED_URL, CAL_START, CAL_END, "UTC")
 
     assert events == []
-
-
-@patch("ics_cal.ics.requests.get")
-def test_blank_url_entries_are_ignored(mock_get, ics_module):
-    mock_get.return_value = calendar_response()
-
-    events = ics_module._retrieve_events(f"  |{SECRET_FEED_URL}| ", CAL_START, CAL_END, "UTC")
-
-    assert len(events) == 1
-    assert mock_get.call_count == 1
 
 
 @patch("ics_cal.ics.requests.get")
@@ -615,3 +602,60 @@ class TestLogMessagesDoNotLeakFeedSecrets:
         assert "HTTP 422" in message
         for secret in SECRETS:
             assert secret not in message
+
+
+LOCATION_ICS = """BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Calendar//EN
+BEGIN:VEVENT
+DTSTART:20240827T100000Z
+DTEND:20240827T110000Z
+SUMMARY:Math Exam
+LOCATION:Room 3
+UID:math-exam-1
+END:VEVENT
+END:VCALENDAR"""
+
+
+@patch("ics_cal.ics.requests.get")
+def test_a_feed_can_prefix_its_events(mock_get, ics_module):
+    mock_get.return_value = calendar_response(LOCATION_ICS)
+
+    events = ics_module._retrieve_events(
+        SECRET_FEED_URL, CAL_START, CAL_END, "UTC", prefix="School: "
+    )
+
+    assert events[0]["summary"] == "School: Math Exam"
+    assert events[0]["location"] == "Room 3"
+
+
+@patch("ics_cal.ics.requests.get")
+def test_a_feed_can_hide_its_location(mock_get, ics_module):
+    mock_get.return_value = calendar_response(LOCATION_ICS)
+
+    events = ics_module._retrieve_events(
+        SECRET_FEED_URL, CAL_START, CAL_END, "UTC", hides_location=True
+    )
+
+    assert events[0]["summary"] == "Math Exam"
+    assert "location" not in events[0]
+
+
+@patch("ics_cal.ics.requests.get")
+def test_the_options_belong_to_their_own_feed(mock_get, ics_module):
+    """Two feeds, one of them labelled, the other one with a useless location."""
+    mock_get.side_effect = [calendar_response(LOCATION_ICS), calendar_response(LOCATION_ICS)]
+
+    events_by_day = ics_module.get_events(
+        [SECRET_FEED_URL, "https://example.com/school.ics"],
+        CAL_START,
+        CAL_END,
+        "UTC",
+        ["", "School: "],
+        [True, False],
+    )
+    events = [event for day in events_by_day.values() for event in day]
+
+    assert [event["summary"] for event in events] == ["Math Exam", "School: Math Exam"]
+    assert "location" not in events[0]
+    assert events[1]["location"] == "Room 3"

@@ -76,14 +76,29 @@ LAT | Yes | | Latitude in decimal for the weather forecast location
 LNG | Yes | | Longitude in decimal for the weather forecast location
 OWM_API_KEY | Yes | | [OpenWeatherMap API key](https://openweathermap.org/api/one-call-3) to retrieve weather forecast
 DISPLAY_TZ | No | America/Los_Angeles | Time zone for displaying the calendar
+ICS_HIDE_LOCATION | No | false | Do not show the location of a feed's events (`true` or `false`)
+ICS_PREFIX | No | | Text prepended to every event of a feed, e.g. `School: ` for a school calendar
 IMAGE_HEIGHT | No | 825 | Height of image to be generated for display
 IMAGE_WIDTH | No | 1200 | Width of image to be generated for display
 NUM_CAL_DAYS_TO_QUERY | No | 30 | Number of days to query from the calendar
 SHOW_ADDITIONAL_WEATHER | No | False | Whether to show "Feels Like" temperature and UV index for the next hour
-SHOW_CALENDAR_NAME | No | False | Show the calendar name on the event line (useful for multiple calendars)
 SHOW_MOON_PHASE | No | False | Whether to show the current moon phase next to the date
 USE_24H_FORMAT | No | True | Whether to display time in 24‑hour format (otherwise 12‑hour AM/PM)
 WEATHER_UNITS | No | metric | Units of measurement for the temperature, `metric` and `imperial` units are available
+
+`ICS_PREFIX` and `ICS_HIDE_LOCATION` line up with the feeds of `ICS_URL` entry by entry, so the
+first value belongs to the first calendar. A feed without an entry is rendered without a prefix
+and with its location (the default), and a prefix is always followed by a space:
+
+```yaml
+    environment:
+      - "ICS_URL=https://calendar.google.com/calendar/ical/…/basic.ics|https://cloud.example.com/school_cal.ics|https://calendar.proton.me/api/calendar/v1/url/…/calendar.ics"
+      - "ICS_PREFIX=|School:|Home:"
+      - "ICS_HIDE_LOCATION=false|false|true"
+```
+
+This example would prepend "School: " to the events of the second calendar and "Home: " to the third calendar's events.
+It would also hide the locations for the home calendar.
 
 ## Development
 

@@ -24,7 +24,7 @@ from render.render import RenderHelper
 cfg = DashboardConfig.get_config()
 BACKGROUND_IMAGE_PATH = Path(__file__).resolve().parent / "render" / "background.png"
 
-app = FastAPI(title="Family E-Ink Dashboard Server", version="0.10.1")
+app = FastAPI(title="Family E-Ink Dashboard Server", version="0.12.0")
 
 logger = structlog.get_logger()
 
@@ -61,7 +61,12 @@ def get_image() -> FileResponse:
     calEndDatetime = calStartDatetime + dt.timedelta(days=cfg.NUM_CAL_DAYS_TO_QUERY, seconds=-1)
 
     events: dict[dt.date, list[dict[str, Any]]] = calModule.get_events(
-        cfg.ICS_URL, calStartDatetime, calEndDatetime, cfg.DISPLAY_TZ
+        cfg.ICS_FEED_URLS,
+        calStartDatetime,
+        calEndDatetime,
+        cfg.DISPLAY_TZ,
+        cfg.ICS_PREFIXES,
+        cfg.ICS_HIDE_LOCATIONS,
     )
 
     # Remove today's past events
