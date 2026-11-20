@@ -155,20 +155,35 @@ class RenderHelper:
         self.extend_list(cal_events_days, self.cfg.NUM_CAL_DAYS_TO_QUERY, "")
         self.extend_list(cal_events_list, self.cfg.NUM_CAL_DAYS_TO_QUERY, "")
 
+        # A malformed response could give us anything in place of the forecast list.
+        daily_forecast = daily_forecast if isinstance(daily_forecast, list) else []
+
         weather_add_info = "&nbsp;"
         if self.cfg.SHOW_ADDITIONAL_WEATHER:
             additional_infos = []
-            if round(current_weather["temp"]) != round(current_weather["feels_like"]):
-                additional_infos.append(f"Feels Like {round(current_weather['feels_like'])}°")
-            if (current_weather["sunrise"] < current_weather["dt"]) and (
-                current_weather["dt"] < current_weather["sunset"]
-            ):
-                additional_infos.append(f"UV Index {round(current_weather['uvi'])}")
-            weather_add_info = " | ".join(additional_infos)
+            try:
+                if round(current_weather["temp"]) != round(current_weather["feels_like"]):
+                    additional_infos.append(f"Feels Like {round(current_weather['feels_like'])}°")
+                if (current_weather["sunrise"] < current_weather["dt"]) and (
+                    current_weather["dt"] < current_weather["sunset"]
+                ):
+                    additional_infos.append(f"UV Index {round(current_weather['uvi'])}")
+            except KeyError, TypeError, ValueError:
+                # No (or partial) weather data: the rest of the page still renders.
+                additional_infos = []
+            weather_add_info = " | ".join(additional_infos) or "&nbsp;"
 
         today_moon_phase = ""
-        if self.cfg.SHOW_MOON_PHASE:
+        if self.cfg.SHOW_MOON_PHASE and daily_forecast and "moon_phase" in daily_forecast[0]:
             today_moon_phase = self.wi_moon_phase(daily_forecast[0]["moon_phase"])
+
+        # Current conditions plus today, tomorrow and the day after. Days OpenWeatherMap did
+        # not give us render as placeholders instead of raising IndexError.
+        current = self.weather_display(current_weather)
+        days = [
+            self.weather_display(daily_forecast[index] if index < len(daily_forecast) else None)
+            for index in (0, 1, 2)
+        ]
 
         # Append the bottom and write the file
         with open(self.currPath + "/dashboard.html", "w") as htmlFile:
@@ -182,29 +197,61 @@ class RenderHelper:
                     cal_days=cal_events_days,
                     cal_days_events=cal_events_list,
                     # I'm choosing to show the forecast for the next hour instead of the current weather
-                    current_weather_text=string.capwords(
-                        current_weather["weather"][0]["description"]
-                    ),
-                    current_weather_id=current_weather["weather"][0]["id"],
-                    current_weather_temp=f"{round(current_weather['temp'])}°",
+                    current_weather_text=current["text"],
+                    current_weather_icon=current["icon"],
+                    current_weather_temp=current["temp"],
                     current_weather_add_info=weather_add_info,
-                    today_weather_id=daily_forecast[0]["weather"][0]["id"],
-                    tomorrow_weather_id=daily_forecast[1]["weather"][0]["id"],
-                    dayafter_weather_id=daily_forecast[2]["weather"][0]["id"],
-                    today_weather_pop=str(round(daily_forecast[0]["pop"] * 100)),
-                    tomorrow_weather_pop=str(round(daily_forecast[1]["pop"] * 100)),
-                    dayafter_weather_pop=str(round(daily_forecast[2]["pop"] * 100)),
-                    today_weather_min=str(round(daily_forecast[0]["temp"]["min"])),
-                    tomorrow_weather_min=str(round(daily_forecast[1]["temp"]["min"])),
-                    dayafter_weather_min=str(round(daily_forecast[2]["temp"]["min"])),
-                    today_weather_max=str(round(daily_forecast[0]["temp"]["max"])),
-                    tomorrow_weather_max=str(round(daily_forecast[1]["temp"]["max"])),
-                    dayafter_weather_max=str(round(daily_forecast[2]["temp"]["max"])),
+                    today_weather_icon=days[0]["icon"],
+                    tomorrow_weather_icon=days[1]["icon"],
+                    dayafter_weather_icon=days[2]["icon"],
+                    today_weather_summary=days[0]["summary"],
+                    tomorrow_weather_summary=days[1]["summary"],
+                    dayafter_weather_summary=days[2]["summary"],
                     today_moon_phase=today_moon_phase,
                 )
             )
 
         self.get_screenshot(path_to_server_image)
+
+    @staticmethod
+    def weather_display(entry: Any) -> dict[str, str]:
+        """
+        The icon, headline and small print for one OpenWeatherMap entry -- either the current
+        conditions or a day of the daily forecast.
+
+        Nothing in the entry is guaranteed to be there: when OpenWeatherMap cannot be reached,
+        or answers only partially, the weather block shows placeholders rather than raising and
+        taking the calendar down with it. Daily entries carry a min/max temperature and a
+        precipitation probability, hence the range as their small print.
+        """
+        display = {
+            "icon": "wi-na",  # the weather-icons "not available" glyph
+            "text": "No weather data",
+            "temp": "--",
+            "summary": "--",
+        }
+        if not isinstance(entry, dict):
+            return display
+
+        try:
+            condition = entry["weather"][0]
+            display["icon"] = f"wi-owm-{int(condition['id'])}"
+            display["text"] = string.capwords(str(condition["description"]))
+        except KeyError, IndexError, TypeError, ValueError:
+            pass
+
+        try:
+            if isinstance(entry["temp"], dict):
+                precipitation = round(float(entry["pop"]) * 100)
+                minimum = round(float(entry["temp"]["min"]))
+                maximum = round(float(entry["temp"]["max"]))
+                display["summary"] = f"{precipitation}% | {minimum}-{maximum}°"
+            else:
+                display["temp"] = f"{round(float(entry['temp']))}°"
+        except KeyError, TypeError, ValueError:
+            pass
+
+        return display
 
     def format_time(self, datetimeObj: dt.datetime) -> str:
         if self.cfg.USE_24H_FORMAT:
