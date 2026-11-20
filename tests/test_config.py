@@ -48,7 +48,6 @@ class TestDashboardConfig:
         assert config.WEATHER_UNITS == WeatherUnits.metric
         assert config.SHOW_ADDITIONAL_WEATHER == False
         assert config.SHOW_MOON_PHASE == False
-        assert config.SHOW_CALENDAR_NAME == False
 
     @patch.dict(
         os.environ,
@@ -64,7 +63,8 @@ class TestDashboardConfig:
             "WEATHER_UNITS": "imperial",
             "SHOW_ADDITIONAL_WEATHER": "true",
             "SHOW_MOON_PHASE": "True",
-            "SHOW_CALENDAR_NAME": "TRUE",
+            "ICS_PREFIX": "|School:",
+            "ICS_HIDE_LOCATION": "true",
         },
         clear=True,
     )
@@ -83,7 +83,8 @@ class TestDashboardConfig:
         assert config.WEATHER_UNITS == WeatherUnits.imperial
         assert config.SHOW_ADDITIONAL_WEATHER == True
         assert config.SHOW_MOON_PHASE == True
-        assert config.SHOW_CALENDAR_NAME == True
+        assert config.ICS_PREFIX == "|School:"
+        assert config.ICS_HIDE_LOCATION == "true"
 
     @patch.dict(os.environ, {}, clear=True)
     @patch("config.logger")
@@ -164,7 +165,6 @@ class TestDashboardConfig:
             "LNG": "-122.4194",
             "SHOW_ADDITIONAL_WEATHER": "true",
             "SHOW_MOON_PHASE": "TRUE",
-            "SHOW_CALENDAR_NAME": "True",
         },
         clear=True,
     )
@@ -174,7 +174,6 @@ class TestDashboardConfig:
 
         assert config.SHOW_ADDITIONAL_WEATHER == True
         assert config.SHOW_MOON_PHASE == True
-        assert config.SHOW_CALENDAR_NAME == True
 
     @patch.dict(
         os.environ,
@@ -185,7 +184,6 @@ class TestDashboardConfig:
             "LNG": "-122.4194",
             "SHOW_ADDITIONAL_WEATHER": "false",
             "SHOW_MOON_PHASE": "False",
-            "SHOW_CALENDAR_NAME": "NotTrue",
         },
         clear=True,
     )
@@ -195,7 +193,6 @@ class TestDashboardConfig:
 
         assert config.SHOW_ADDITIONAL_WEATHER == False
         assert config.SHOW_MOON_PHASE == False
-        assert config.SHOW_CALENDAR_NAME == False
 
     @patch.dict(
         os.environ,

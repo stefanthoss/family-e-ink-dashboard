@@ -192,7 +192,6 @@ END:VCALENDAR""",
                     "startDatetime": dt.datetime(2024, 8, 27, 10, 0, 0, tzinfo=dt.UTC),
                     "endDatetime": dt.datetime(2024, 8, 27, 11, 0, 0, tzinfo=dt.UTC),
                     "isMultiday": False,
-                    "calendarName": "Work Calendar",
                 }
             ],
         ),
@@ -214,7 +213,6 @@ END:VCALENDAR""",
                     "startDatetime": dt.datetime(2024, 8, 27, 0, 0, 0, tzinfo=dt.UTC),
                     "endDatetime": dt.datetime(2024, 8, 27, 23, 59, 59, tzinfo=dt.UTC),
                     "isMultiday": False,
-                    "calendarName": None,
                 }
             ],
         ),
@@ -236,7 +234,6 @@ END:VCALENDAR""",
                     "startDatetime": dt.datetime(2024, 8, 27, 16, 0, 0, tzinfo=dt.UTC),
                     "endDatetime": dt.datetime(2024, 8, 29, 12, 0, 0, tzinfo=dt.UTC),
                     "isMultiday": True,
-                    "calendarName": None,
                 }
             ],
         ),
@@ -261,7 +258,6 @@ END:VCALENDAR""",
                     "startDatetime": dt.datetime(2024, 8, 28, 22, 0, 0, tzinfo=dt.UTC),
                     "endDatetime": dt.datetime(2024, 8, 29, 0, 30, 0, tzinfo=dt.UTC),
                     "isMultiday": True,
-                    "calendarName": "Personal",
                 }
             ],
         ),
@@ -284,14 +280,12 @@ END:VCALENDAR""",
                     "startDatetime": dt.datetime(2024, 8, 27, 10, 0, 0, tzinfo=dt.UTC),
                     "endDatetime": dt.datetime(2024, 8, 27, 11, 0, 0, tzinfo=dt.UTC),
                     "isMultiday": False,
-                    "calendarName": None,
                 },
                 {
                     "summary": "Recurring Event",
                     "startDatetime": dt.datetime(2024, 8, 28, 10, 0, 0, tzinfo=dt.UTC),
                     "endDatetime": dt.datetime(2024, 8, 28, 11, 0, 0, tzinfo=dt.UTC),
                     "isMultiday": False,
-                    "calendarName": None,
                 },
             ],
         ),
@@ -321,7 +315,6 @@ END:VCALENDAR""",
                     "startDatetime": dt.datetime(2024, 8, 27, 14, 0, 0, tzinfo=dt.UTC),
                     "endDatetime": dt.datetime(2024, 8, 27, 15, 0, 0, tzinfo=dt.UTC),
                     "isMultiday": False,
-                    "calendarName": None,
                 }
             ],
         ),
@@ -395,9 +388,7 @@ END:VCALENDAR"""
     assert len(events) == 2
     # Events should be sorted by start time
     assert events[0]["summary"] == "Work Event"
-    assert events[0]["calendarName"] == "Work"
     assert events[1]["summary"] == "Personal Event"
-    assert events[1]["calendarName"] == "Personal"
 
 
 @patch("ics_cal.ics.requests.get")
@@ -615,3 +606,119 @@ class TestLogMessagesDoNotLeakFeedSecrets:
         assert "HTTP 422" in message
         for secret in SECRETS:
             assert secret not in message
+
+
+LOCATION_ICS = """BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Calendar//EN
+BEGIN:VEVENT
+DTSTART:20240827T100000Z
+DTEND:20240827T110000Z
+SUMMARY:Math Exam
+LOCATION:Room 3
+UID:math-exam-1
+END:VEVENT
+END:VCALENDAR"""
+
+
+@patch("ics_cal.ics.requests.get")
+def test_a_feed_can_prefix_its_events(mock_get, ics_module):
+    mock_get.return_value = calendar_response(LOCATION_ICS)
+
+    events = ics_module._retrieve_events(
+        SECRET_FEED_URL, CAL_START, CAL_END, "UTC", prefixes="🏫 School:"
+    )
+
+    assert events[0]["summary"] == "🏫 School: Math Exam"
+    assert events[0]["location"] == "Room 3"
+
+
+@patch("ics_cal.ics.requests.get")
+def test_a_feed_can_hide_its_location(mock_get, ics_module):
+    mock_get.return_value = calendar_response(LOCATION_ICS)
+
+    events = ics_module._retrieve_events(
+        SECRET_FEED_URL, CAL_START, CAL_END, "UTC", hide_locations="yes"
+    )
+
+    assert events[0]["summary"] == "Math Exam"
+    assert "location" not in events[0]
+
+
+@patch("ics_cal.ics.requests.get")
+def test_the_options_belong_to_their_own_feed(mock_get, ics_module):
+    """Two feeds, one of them labelled, the other one with a useless location."""
+    mock_get.side_effect = [calendar_response(LOCATION_ICS), calendar_response(LOCATION_ICS)]
+
+    events = ics_module._retrieve_events(
+        f"{SECRET_FEED_URL}|https://example.com/school.ics",
+        CAL_START,
+        CAL_END,
+        "UTC",
+        prefixes="|School:",
+        hide_locations="true|false",
+    )
+
+    assert [event["summary"] for event in events] == ["Math Exam", "School: Math Exam"]
+    assert "location" not in events[0]
+    assert events[1]["location"] == "Room 3"
+
+
+@pytest.mark.parametrize("value", ["true", "True", "YES", "on", "1", "y"])
+@patch("ics_cal.ics.requests.get")
+def test_the_hide_option_is_read_leniently(mock_get, ics_module, value):
+    mock_get.return_value = calendar_response(LOCATION_ICS)
+
+    events = ics_module._retrieve_events(
+        SECRET_FEED_URL, CAL_START, CAL_END, "UTC", hide_locations=value
+    )
+
+    assert "location" not in events[0]
+
+
+@patch("ics_cal.ics.requests.get")
+def test_an_unparsable_boolean_shows_the_location_and_warns(mock_get, ics_module):
+    mock_get.return_value = calendar_response(LOCATION_ICS)
+
+    with patch.object(ics_module, "logger") as mock_logger:
+        events = ics_module._retrieve_events(
+            SECRET_FEED_URL, CAL_START, CAL_END, "UTC", hide_locations="maybe"
+        )
+
+    assert events[0]["location"] == "Room 3"
+    assert "not a boolean" in mock_logger.warning.call_args[0][0]
+
+
+@patch("ics_cal.ics.requests.get")
+def test_a_mismatching_option_list_warns_in_both_directions(mock_get, ics_module):
+    mock_get.side_effect = requests.exceptions.ConnectionError()
+
+    with patch.object(ics_module, "logger") as mock_logger:
+        events = ics_module._retrieve_events(
+            "https://a.ics|https://b.ics|https://c.ics",
+            CAL_START,
+            CAL_END,
+            "UTC",
+            prefixes="Home:",
+            hide_locations="true|false|false|true",
+        )
+
+    assert events == []
+    warnings = [call.args[0] for call in mock_logger.warning.call_args_list]
+    assert "ICS_PREFIX does not match ICS_URL (1 entry / 3 feed(s))" in warnings[0]
+    assert "the last 2 feed(s) use the default" in warnings[0]
+    assert "ICS_HIDE_LOCATION does not match ICS_URL (4 entries / 3 feed(s))" in warnings[1]
+    assert "ignoring the extra 1" in warnings[1]
+
+
+@patch("ics_cal.ics.requests.get")
+def test_matching_or_absent_options_do_not_warn(mock_get, ics_module):
+    mock_get.side_effect = requests.exceptions.ConnectionError()
+
+    with patch.object(ics_module, "logger") as mock_logger:
+        ics_module._retrieve_events(
+            "https://a.ics|https://b.ics", CAL_START, CAL_END, "UTC", prefixes="A|B"
+        )
+        ics_module._retrieve_events("https://a.ics|https://b.ics", CAL_START, CAL_END, "UTC")
+
+    mock_logger.warning.assert_not_called()

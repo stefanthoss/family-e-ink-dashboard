@@ -17,6 +17,8 @@ class DashboardConfig:
             logger.error("ICS_URL needs to be set.")
             sys.exit(1)
         self.ICS_URL: str = ics_url
+        self.ICS_PREFIX: str = os.getenv("ICS_PREFIX", "")
+        self.ICS_HIDE_LOCATION: str = os.getenv("ICS_HIDE_LOCATION", "")
 
         owm_api_key = os.getenv("OWM_API_KEY")
         if not owm_api_key:
@@ -38,7 +40,6 @@ class DashboardConfig:
         self.SHOW_ADDITIONAL_WEATHER: bool = (
             os.getenv("SHOW_ADDITIONAL_WEATHER", "False").lower() == "true"
         )
-        self.SHOW_CALENDAR_NAME: bool = os.getenv("SHOW_CALENDAR_NAME", "False").lower() == "true"
         self.SHOW_MOON_PHASE: bool = os.getenv("SHOW_MOON_PHASE", "False").lower() == "true"
         self.USE_24H_FORMAT: bool = os.getenv("USE_24H_FORMAT", "True").lower() == "true"
         self.WEATHER_UNITS: WeatherUnits = WeatherUnits[os.getenv("WEATHER_UNITS", "metric")]
