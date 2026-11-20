@@ -61,12 +61,12 @@ def get_image() -> FileResponse:
     calEndDatetime = calStartDatetime + dt.timedelta(days=cfg.NUM_CAL_DAYS_TO_QUERY, seconds=-1)
 
     events: dict[dt.date, list[dict[str, Any]]] = calModule.get_events(
-        cfg.ICS_URL,
+        cfg.ICS_FEED_URLS,
         calStartDatetime,
         calEndDatetime,
         cfg.DISPLAY_TZ,
-        cfg.ICS_PREFIX,
-        cfg.ICS_HIDE_LOCATION,
+        cfg.ICS_PREFIXES,
+        cfg.ICS_HIDE_LOCATIONS,
     )
 
     # Remove today's past events

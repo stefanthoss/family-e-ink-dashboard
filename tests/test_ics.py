@@ -158,12 +158,12 @@ def test_get_events(
     """Test get_events method with various scenarios."""
     mock_retrieve_events.return_value = mock_events
 
-    ics_url = "https://example.com/calendar.ics"
+    ics_urls = ["https://example.com/calendar.ics"]
     cal_start = dt.datetime(2024, 8, 27, 0, 0, 0)
     cal_end = dt.datetime(2024, 8, 31, 0, 0, 0)
     display_tz = "Europe/Berlin"
 
-    events_by_day = ics_module.get_events(ics_url, cal_start, cal_end, display_tz)
+    events_by_day = ics_module.get_events(ics_urls, cal_start, cal_end, display_tz)
 
     assert events_by_day == expected_events_by_day
 
@@ -380,10 +380,13 @@ END:VCALENDAR"""
     cal_end = dt.datetime(2024, 8, 28, 0, 0, 0, tzinfo=dt.UTC)
     display_tz = "UTC"
 
-    # Test with pipe-separated URLs
-    events = ics_module._retrieve_events(
-        "https://example.com/calendar.ics|http://work.com/cal.ics", cal_start, cal_end, display_tz
+    events_by_day = ics_module.get_events(
+        ["https://example.com/calendar.ics", "http://work.com/cal.ics"],
+        cal_start,
+        cal_end,
+        display_tz,
     )
+    events = [event for day in events_by_day.values() for event in day]
 
     assert len(events) == 2
     # Events should be sorted by start time
@@ -520,11 +523,14 @@ def test_revoked_feed_does_not_break_the_other_calendars(mock_get, ics_module):
         calendar_response(),
     ]
 
-    events = ics_module._retrieve_events(
-        f"{SECRET_FEED_URL}|https://example.com/work.ics", CAL_START, CAL_END, "UTC"
-    )
+    with patch.object(ics_module, "logger") as mock_logger:
+        events_by_day = ics_module.get_events(
+            [SECRET_FEED_URL, "https://example.com/work.ics"], CAL_START, CAL_END, "UTC"
+        )
+    events = [event for day in events_by_day.values() for event in day]
 
     assert [event["summary"] for event in events] == ["Work Event"]
+    assert "ICS feed 1 at" in str(mock_logger.error.call_args)
 
 
 @patch("ics_cal.ics.requests.get")
@@ -534,16 +540,6 @@ def test_every_feed_failing_returns_no_events_instead_of_raising(mock_get, ics_m
     events = ics_module._retrieve_events(SECRET_FEED_URL, CAL_START, CAL_END, "UTC")
 
     assert events == []
-
-
-@patch("ics_cal.ics.requests.get")
-def test_blank_url_entries_are_ignored(mock_get, ics_module):
-    mock_get.return_value = calendar_response()
-
-    events = ics_module._retrieve_events(f"  |{SECRET_FEED_URL}| ", CAL_START, CAL_END, "UTC")
-
-    assert len(events) == 1
-    assert mock_get.call_count == 1
 
 
 @patch("ics_cal.ics.requests.get")
@@ -626,10 +622,10 @@ def test_a_feed_can_prefix_its_events(mock_get, ics_module):
     mock_get.return_value = calendar_response(LOCATION_ICS)
 
     events = ics_module._retrieve_events(
-        SECRET_FEED_URL, CAL_START, CAL_END, "UTC", prefixes="🏫 School:"
+        SECRET_FEED_URL, CAL_START, CAL_END, "UTC", prefix="School: "
     )
 
-    assert events[0]["summary"] == "🏫 School: Math Exam"
+    assert events[0]["summary"] == "School: Math Exam"
     assert events[0]["location"] == "Room 3"
 
 
@@ -638,7 +634,7 @@ def test_a_feed_can_hide_its_location(mock_get, ics_module):
     mock_get.return_value = calendar_response(LOCATION_ICS)
 
     events = ics_module._retrieve_events(
-        SECRET_FEED_URL, CAL_START, CAL_END, "UTC", hide_locations="yes"
+        SECRET_FEED_URL, CAL_START, CAL_END, "UTC", hides_location=True
     )
 
     assert events[0]["summary"] == "Math Exam"
@@ -650,75 +646,16 @@ def test_the_options_belong_to_their_own_feed(mock_get, ics_module):
     """Two feeds, one of them labelled, the other one with a useless location."""
     mock_get.side_effect = [calendar_response(LOCATION_ICS), calendar_response(LOCATION_ICS)]
 
-    events = ics_module._retrieve_events(
-        f"{SECRET_FEED_URL}|https://example.com/school.ics",
+    events_by_day = ics_module.get_events(
+        [SECRET_FEED_URL, "https://example.com/school.ics"],
         CAL_START,
         CAL_END,
         "UTC",
-        prefixes="|School:",
-        hide_locations="true|false",
+        ["", "School: "],
+        [True, False],
     )
+    events = [event for day in events_by_day.values() for event in day]
 
     assert [event["summary"] for event in events] == ["Math Exam", "School: Math Exam"]
     assert "location" not in events[0]
     assert events[1]["location"] == "Room 3"
-
-
-@pytest.mark.parametrize("value", ["true", "True", "YES", "on", "1", "y"])
-@patch("ics_cal.ics.requests.get")
-def test_the_hide_option_is_read_leniently(mock_get, ics_module, value):
-    mock_get.return_value = calendar_response(LOCATION_ICS)
-
-    events = ics_module._retrieve_events(
-        SECRET_FEED_URL, CAL_START, CAL_END, "UTC", hide_locations=value
-    )
-
-    assert "location" not in events[0]
-
-
-@patch("ics_cal.ics.requests.get")
-def test_an_unparsable_boolean_shows_the_location_and_warns(mock_get, ics_module):
-    mock_get.return_value = calendar_response(LOCATION_ICS)
-
-    with patch.object(ics_module, "logger") as mock_logger:
-        events = ics_module._retrieve_events(
-            SECRET_FEED_URL, CAL_START, CAL_END, "UTC", hide_locations="maybe"
-        )
-
-    assert events[0]["location"] == "Room 3"
-    assert "not a boolean" in mock_logger.warning.call_args[0][0]
-
-
-@patch("ics_cal.ics.requests.get")
-def test_a_mismatching_option_list_warns_in_both_directions(mock_get, ics_module):
-    mock_get.side_effect = requests.exceptions.ConnectionError()
-
-    with patch.object(ics_module, "logger") as mock_logger:
-        events = ics_module._retrieve_events(
-            "https://a.ics|https://b.ics|https://c.ics",
-            CAL_START,
-            CAL_END,
-            "UTC",
-            prefixes="Home:",
-            hide_locations="true|false|false|true",
-        )
-
-    assert events == []
-    warnings = [call.args[0] for call in mock_logger.warning.call_args_list]
-    assert "ICS_PREFIX does not match ICS_URL (1 entry / 3 feed(s))" in warnings[0]
-    assert "the last 2 feed(s) use the default" in warnings[0]
-    assert "ICS_HIDE_LOCATION does not match ICS_URL (4 entries / 3 feed(s))" in warnings[1]
-    assert "ignoring the extra 1" in warnings[1]
-
-
-@patch("ics_cal.ics.requests.get")
-def test_matching_or_absent_options_do_not_warn(mock_get, ics_module):
-    mock_get.side_effect = requests.exceptions.ConnectionError()
-
-    with patch.object(ics_module, "logger") as mock_logger:
-        ics_module._retrieve_events(
-            "https://a.ics|https://b.ics", CAL_START, CAL_END, "UTC", prefixes="A|B"
-        )
-        ics_module._retrieve_events("https://a.ics|https://b.ics", CAL_START, CAL_END, "UTC")
-
-    mock_logger.warning.assert_not_called()

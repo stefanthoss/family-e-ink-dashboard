@@ -295,3 +295,107 @@ class TestDashboardConfig:
 
             assert config1 is config2
             assert id(config1) == id(config2)
+
+
+class TestPerFeedOptions:
+    """ICS_URL and its two per feed options are read once, when the config is built."""
+
+    @pytest.mark.parametrize(
+        ("ics_url", "expected"),
+        [
+            ("https://example.com/a.ics", ["https://example.com/a.ics"]),
+            (
+                "https://example.com/a.ics|https://example.com/b.ics",
+                ["https://example.com/a.ics", "https://example.com/b.ics"],
+            ),
+            ("  |https://example.com/a.ics| ", ["https://example.com/a.ics"]),
+            ("| |", []),
+        ],
+    )
+    def test_split_feeds(self, ics_url, expected):
+        assert DashboardConfig.split_feeds(ics_url) == expected
+
+    @pytest.mark.parametrize(
+        ("entry", "expected"),
+        [
+            ("School:", "School: "),
+            ("School", "School "),
+            ("  School:  ", "School: "),
+            ('"School:"', "School: "),
+            ("", ""),
+            ("   ", ""),
+        ],
+    )
+    def test_parse_prefix(self, entry, expected):
+        assert DashboardConfig.parse_prefix(entry) == expected
+
+    @pytest.mark.parametrize("entry", ["true", "True", "TRUE", '"true"', " true "])
+    def test_parse_bool_reads_true(self, entry):
+        assert DashboardConfig.parse_bool(entry) is True
+
+    @pytest.mark.parametrize(
+        "entry", ["false", "False", "FALSE", "", "  ", "maybe", "yes", "on", "1", "0"]
+    )
+    def test_parse_bool_reads_false(self, entry):
+        assert DashboardConfig.parse_bool(entry) is False
+
+    @patch.dict(
+        os.environ,
+        {
+            "ICS_URL": "https://a.ics|https://b.ics",
+            "OWM_API_KEY": "test_api_key",
+            "LAT": "1",
+            "LNG": "1",
+            "ICS_PREFIX": "|School:",
+            "ICS_HIDE_LOCATION": "false|TRUE",
+        },
+        clear=True,
+    )
+    def test_every_entry_belongs_to_its_own_feed(self):
+        config = DashboardConfig()
+
+        assert config.ICS_FEED_URLS == ["https://a.ics", "https://b.ics"]
+        assert config.ICS_PREFIXES == ["", "School: "]
+        assert config.ICS_HIDE_LOCATIONS == [False, True]
+
+    @patch.dict(
+        os.environ,
+        {
+            "ICS_URL": "https://a.ics|https://b.ics|https://c.ics",
+            "OWM_API_KEY": "test_api_key",
+            "LAT": "1",
+            "LNG": "1",
+            "ICS_PREFIX": "Home:",
+            "ICS_HIDE_LOCATION": "true|true|true|true",
+        },
+        clear=True,
+    )
+    @patch("config.logger")
+    def test_a_list_that_does_not_line_up_is_used_as_far_as_it_reaches(self, mock_logger):
+        config = DashboardConfig()
+
+        assert config.ICS_PREFIXES == ["Home: ", "", ""]
+        assert config.ICS_HIDE_LOCATIONS == [True, True, True]
+        warnings = [call.args[0] for call in mock_logger.warning.call_args_list]
+        assert "ICS_PREFIX does not match ICS_URL (1 entry / 3 feed(s))" in warnings[0]
+        assert "the last 2 feed(s) use the default" in warnings[0]
+        assert "ICS_HIDE_LOCATION does not match ICS_URL (4 entries / 3 feed(s))" in warnings[1]
+        assert "ignoring the extra 1" in warnings[1]
+
+    @patch.dict(
+        os.environ,
+        {
+            "ICS_URL": "https://a.ics|https://b.ics",
+            "OWM_API_KEY": "test_api_key",
+            "LAT": "1",
+            "LNG": "1",
+        },
+        clear=True,
+    )
+    @patch("config.logger")
+    def test_absent_options_stay_silent(self, mock_logger):
+        config = DashboardConfig()
+
+        assert config.ICS_PREFIXES == ["", ""]
+        assert config.ICS_HIDE_LOCATIONS == [False, False]
+        mock_logger.warning.assert_not_called()
